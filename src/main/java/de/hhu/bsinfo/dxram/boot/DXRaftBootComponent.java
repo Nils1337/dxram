@@ -398,6 +398,8 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
         LOGGER.trace("Entering parseNodes");
 
+        m_bloomFilter = new BloomFilter((int) getConfig().getBitfieldSize().getBytes(), 65536);
+
         // Parse node information
         seed = 1;
 
