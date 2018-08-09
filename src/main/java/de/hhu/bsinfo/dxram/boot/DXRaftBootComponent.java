@@ -322,7 +322,8 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
                     NodeCapabilities.toString(event.getCapabilities())));
 
             boolean readFromFile = m_nodes.getNode(event.getNodeID()) != null;
-            m_nodes.addNode(new NodesConfiguration.NodeEntry(event.getAddress(), event.getNodeID(), event.getRack(), event.getSwitch(),
+            m_nodes.addNode(new NodesConfiguration.NodeEntry(event.getAddress(),
+                    event.getNodeID(), event.getRack(), event.getSwitch(),
                     event.getRole(), event.getCapabilities(), readFromFile,
                     event.isAvailableForBackup(), true));
         }
@@ -330,12 +331,9 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
     @Override
     public boolean finishInitComponent() {
-
         // Set own status to online
         m_nodes.getOwnNodeEntry().setStatus(true);
-
         m_isStarting = false;
-
         return true;
     }
 
@@ -375,30 +373,19 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
     // -----------------------------------------------------------------------------------
 
     /**
-     * Parses the configured nodes
+     * Assigns ids to every node in config
      *
      * @param p_nodes
      *         the nodes to parse
      * @param p_cmdLineNodeRole
      *         the role from command line
-     * @param p_cmdLineRack
-     *         the rack this node is in (irrelevant for nodes in nodes file)
-     * @param p_cmdLineSwitch
-     *         the switch this node is connected to (irrelevant for nodes in nodes file)
-     * @return the parsed nodes
+     * @return seed for continued hashing
      */
-    private boolean parseNodes(final ArrayList<NodesConfiguration.NodeEntry> p_nodes, final NodeRole p_cmdLineNodeRole,
-            final short p_cmdLineRack, final short p_cmdLineSwitch) {
-        short nodeID = NodeID.INVALID_ID;
+    private boolean assignIds(final ArrayList<NodesConfiguration.NodeEntry> p_nodes, final NodeRole p_cmdLineNodeRole) {
+        short nodeID;
         int seed;
-        PeerData node;
-        List<RaftData> childs;
-
-        String[] splits;
 
         LOGGER.trace("Entering parseNodes");
-
-        m_bloomFilter = new BloomFilter((int) getConfig().getBitfieldSize().getBytes(), 65536);
 
         // Parse node information
         seed = 1;
@@ -406,11 +393,12 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
         // assign ids to all nodes in config file
         for (NodesConfiguration.NodeEntry entry : p_nodes) {
             nodeID = CRC16.continuousHash(seed);
+
             while (m_bloomFilter.contains(nodeID) || nodeID == NodeID.INVALID_ID) {
                 nodeID = CRC16.continuousHash(++seed);
             }
-            seed++;
 
+            seed++;
             m_bloomFilter.add(nodeID);
 
             if (m_ownAddress.equals(entry.getAddress())) {
@@ -423,7 +411,6 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
                 }
 
                 m_nodes.setOwnNodeID(nodeID);
-
                 LOGGER.info("Own node assigned: %s", entry);
             }
 
@@ -452,53 +439,62 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 //            }
 //        }
 
-        if (m_nodes.getOwnNodeID() == NodeID.INVALID_ID) {
-            // Add this node if it was not in start configuration
+        LOGGER.trace("Exiting parseNodes");
+        return true;
+    }
 
-            LOGGER.warn("Node not in nodes.config (%s)", m_ownAddress);
+    /**
+     * Assigns new id from raft to local node
+     *
+     * @param p_cmdLineNodeRole
+     *        the role from command line
+     * @param p_cmdLineRack
+     *        the rack this node is in (irrelevant for nodes in nodes file)
+     * @param p_cmdLineSwitch
+     *        the switch this node is connected to (irrelevant for nodes in nodes file)
+     */
+    private void assignIdFromRaft(final NodeRole p_cmdLineNodeRole,
+            final short p_cmdLineRack, final short p_cmdLineSwitch) {
+        PeerData node;
+        List<RaftData> childs;
+        String[] splits;
+        int seed;
+        short nodeID = NodeID.INVALID_ID;
 
+        // Add this node if it was not in start configuration
+        LOGGER.warn("Node not in nodes.config (%s)", m_ownAddress);
 
-            // get free id from raft
-            boolean obtained = false;
+        // get free id from raft
+        boolean obtained = false;
+        childs = m_raftClient.readList("free");
+        while (!obtained && childs != null && !childs.isEmpty()) {
+            nodeID = ((ShortData) childs.get(0)).getData();
+            obtained = m_raftClient.removeFromList("free", new ShortData(nodeID), false);
             childs = m_raftClient.readList("free");
-            while (!obtained && childs != null && !childs.isEmpty()) {
-                nodeID = ((ShortData) childs.get(0)).getData();
-                obtained = m_raftClient.removeFromList("free", new ShortData(nodeID), false);
-                childs = m_raftClient.readList("free");
-            }
-
-            if (obtained) {
-                node = new PeerData(nodeID, m_ownAddress.getIP(), m_ownAddress.getPort(), p_cmdLineNodeRole.getAcronym(), p_cmdLineRack, p_cmdLineSwitch);
-                m_nodes.setOwnNodeID(nodeID);
-                m_raftClient.addToList("new", node, true);
-            } else {
-                splits = m_ownAddress.getIP().split("\\.");
-                seed = (Integer.parseInt(splits[1]) << 16) + (Integer.parseInt(splits[2]) << 8) + Integer.parseInt(
-                        splits[3]);
-                nodeID = CRC16.continuousHash(seed);
-                while (m_bloomFilter.contains(nodeID) || nodeID == NodeID.INVALID_ID) {
-                    nodeID = CRC16.continuousHash(--seed);
-                }
-                m_bloomFilter.add(nodeID);
-                // Set own NodeID
-                m_nodes.setOwnNodeID(nodeID);
-                node = new PeerData(nodeID, m_ownAddress.getIP(), m_ownAddress.getPort(), p_cmdLineNodeRole.getAcronym(), p_cmdLineRack, p_cmdLineSwitch);
-                m_raftClient.addToList("new", node, true);
-            }
-
-            // Set routing information for that node
-            //m_nodes.addNode(new NodeEntry(m_ownAddress, nodeID, p_cmdLineRack, p_cmdLineSwitch,
-            //  p_cmdLineNodeRole, false, true));
-        } else {
-            // Remove NodeID if this node failed before
-            nodeID = m_nodes.getOwnNodeID();
-            m_raftClient.removeFromList("free", new ShortData(nodeID), false);
         }
 
-
-        LOGGER.trace("Exiting parseNodesNormal");
-
-        return true;
+        if (obtained) {
+            node = new PeerData(nodeID, m_ownAddress.getIP(),
+                    m_ownAddress.getPort(), p_cmdLineNodeRole.getAcronym(),
+                    p_cmdLineRack, p_cmdLineSwitch);
+            m_nodes.setOwnNodeID(nodeID);
+            m_raftClient.addToList("new", node, true);
+        } else {
+            splits = m_ownAddress.getIP().split("\\.");
+            seed = (Integer.parseInt(splits[1]) << 16) + (Integer.parseInt(splits[2]) << 8) + Integer.parseInt(
+                    splits[3]);
+            nodeID = CRC16.continuousHash(seed);
+            while (m_bloomFilter.contains(nodeID) || nodeID == NodeID.INVALID_ID) {
+                nodeID = CRC16.continuousHash(--seed);
+            }
+            m_bloomFilter.add(nodeID);
+            // Set own NodeID
+            m_nodes.setOwnNodeID(nodeID);
+            node = new PeerData(nodeID, m_ownAddress.getIP(),
+                    m_ownAddress.getPort(), p_cmdLineNodeRole.getAcronym(),
+                    p_cmdLineRack, p_cmdLineSwitch);
+            m_raftClient.addToList("new", node, true);
+        }
     }
 
 
@@ -511,7 +507,6 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
     @Override
     protected boolean initComponent(DXRAMContext.Config p_config) {
-
         m_ownAddress = p_config.getEngineConfig().getAddress();
         NodeRole role = p_config.getEngineConfig().getRole();
 
@@ -522,32 +517,39 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
         m_isStarting = true;
 
+        m_bloomFilter = new BloomFilter((int) getConfig().getBitfieldSize().getBytes(), 65536);
         m_nodes = new NodesConfiguration();
 
-        if (!parseNodes(getConfig().getNodesConfig(), role, getConfig().getRack(), getConfig().getSwitch())) {
-
+        if (!assignIds(getConfig().getNodesConfig(), role)) {
             LOGGER.error("Parsing nodes failed");
-
             return false;
         }
 
         initRaft(role);
-        return true;
 
+        if (m_nodes.getOwnNodeID() == NodeID.INVALID_ID) {
+            assignIdFromRaft(role, getConfig().getRack(), getConfig().getSwitch());
+        } else {
+            // Remove NodeID if this node failed before
+            short nodeID = m_nodes.getOwnNodeID();
+            m_raftClient.removeFromList("free", new ShortData(nodeID), false);
+        }
+
+        return true;
     }
 
     private void initRaft (NodeRole p_role) {
         NodesConfiguration.NodeEntry[] nodes = m_nodes.getNodes();
-
         List<RaftAddress> addresses = new ArrayList<>(nodes.length);
+
         for (NodesConfiguration.NodeEntry node: nodes) {
             addresses.add(new RaftAddress(new RaftID(node.getNodeID()), node.getAddress().getIP(),
                     node.getAddress().getPort()));
         }
 
-        RaftAddress localAddress = new RaftAddress(new RaftID(m_nodes.getOwnNodeID()), m_nodes.getOwnNodeEntry().getAddress().getIP(),
+        RaftAddress localAddress = new RaftAddress(new RaftID(m_nodes.getOwnNodeID()),
+                m_nodes.getOwnNodeEntry().getAddress().getIP(),
                 m_nodes.getOwnNodeEntry().getAddress().getPort());
-
         DXRaftNetworkService network = new DXRaftNetworkService(m_network);
 
         if (p_role == NodeRole.SUPERPEER) {
@@ -556,13 +558,11 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
                     .withRaftServers(addresses)
                     .withLocalAddress(localAddress)
                     .build();
-
             m_raftServer = RaftServer.RaftServerBuilder
                     .aRaftServer()
                     .withNetworkService(network)
                     .withContext(context)
                     .build();
-
             m_raftServer.bootstrapNewCluster();
         }
 
