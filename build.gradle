@@ -58,6 +58,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 dependencies {
     implementation fileTree(dir: 'lib', include: ['*.jar'])
 
+    implementation 'de.hhu.bsinfo:dxraft:0.1'
     implementation 'de.hhu.bsinfo:dxnet:1.0.0'
     implementation 'de.hhu.bsinfo:dxmon:1.0.0'
     nativeImplementation 'de.hhu.bsinfo:dxutils:1.0.0'

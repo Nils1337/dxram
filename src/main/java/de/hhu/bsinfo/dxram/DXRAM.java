@@ -27,6 +27,7 @@ import de.hhu.bsinfo.dxram.app.ApplicationComponent;
 import de.hhu.bsinfo.dxram.app.ApplicationService;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.boot.BootService;
+import de.hhu.bsinfo.dxram.boot.DXRaftBootComponent;
 import de.hhu.bsinfo.dxram.boot.ZookeeperBootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkAnonService;
 import de.hhu.bsinfo.dxram.chunk.ChunkAsyncService;
@@ -211,7 +212,8 @@ public final class DXRAM {
         p_engine.registerComponent(NetworkComponent.class);
         p_engine.registerComponent(NullComponent.class);
         p_engine.registerComponent(PeerLockComponent.class);
-        p_engine.registerComponent(ZookeeperBootComponent.class);
+        //p_engine.registerComponent(ZookeeperBootComponent.class);#
+        p_engine.registerComponent(DXRaftBootComponent.class);
     }
 
     /**

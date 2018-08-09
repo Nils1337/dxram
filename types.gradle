@@ -22,7 +22,7 @@ buildTypes {
 
         excludeLogger 'RELEASE'
         excludeStatistics 'RELEASE'
-        excludeNodeRoleAsserts 'RELEASE'
+        //excludeNodeRoleAsserts 'RELEASE'
 
         buildConfig {
 
@@ -36,7 +36,7 @@ buildTypes {
 
         excludeLogger 'PERFORMANCE'
         excludeStatistics 'PERFORMANCE'
-        excludeNodeRoleAsserts 'PERFORMANCE'
+        //excludeNodeRoleAsserts 'PERFORMANCE'
 
         buildConfig {
 
