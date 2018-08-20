@@ -403,10 +403,8 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
             if (m_ownAddress.equals(entry.getAddress())) {
                 if (entry.getRole() != p_cmdLineNodeRole) {
-
                     LOGGER.error("NodeRole in configuration differs from command line given NodeRole: %s != %s",
                             entry.getRole(), p_cmdLineNodeRole);
-
                     return false;
                 }
 
