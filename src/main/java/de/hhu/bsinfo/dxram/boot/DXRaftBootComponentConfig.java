@@ -10,27 +10,16 @@ import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.NodeID;
 import de.hhu.bsinfo.dxutils.unit.IPV4Unit;
 import de.hhu.bsinfo.dxutils.unit.StorageUnit;
-import de.hhu.bsinfo.dxutils.unit.TimeUnit;
 
 import static de.hhu.bsinfo.dxram.util.NodeCapabilities.COMPUTE;
 import static de.hhu.bsinfo.dxram.util.NodeCapabilities.NONE;
 import static de.hhu.bsinfo.dxram.util.NodeCapabilities.STORAGE;
 import static de.hhu.bsinfo.dxram.util.NodeCapabilities.toMask;
 
-/**
- * Config for the ZookeeperBootComponent
- *
- * @author Stefan Nothaas, stefan.nothaas@hhu.de, 24.05.2017
- */
-public class ZookeeperBootComponentConfig extends AbstractDXRAMComponentConfig {
-    @Expose
-    private String m_path = "/dxram";
+public class DXRaftBootComponentConfig extends AbstractDXRAMComponentConfig {
 
     @Expose
-    private IPV4Unit m_connection = new IPV4Unit("127.0.0.1", 2181);
-
-    @Expose
-    private TimeUnit m_timeout = new TimeUnit(10, TimeUnit.SEC);
+    private int port = 6653;
 
     @Expose
     private StorageUnit m_bitfieldSize = new StorageUnit(2, StorageUnit.MB);
@@ -40,7 +29,7 @@ public class ZookeeperBootComponentConfig extends AbstractDXRAMComponentConfig {
         {
             // default values for local testing
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22221), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.SUPERPEER, NONE, true, true, false ,-1));
+                    (short) 0, NodeRole.SUPERPEER, NONE, true, true, false, 5254));
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22222), NodeID.INVALID_ID, (short) 0,
                     (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false, -1));
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22223), NodeID.INVALID_ID, (short) 0,
@@ -57,15 +46,8 @@ public class ZookeeperBootComponentConfig extends AbstractDXRAMComponentConfig {
     /**
      * Constructor
      */
-    public ZookeeperBootComponentConfig() {
-        super(ZookeeperBootComponent.class, true, true);
-    }
-
-    /**
-     * Path for zookeeper entry
-     */
-    public String getPath() {
-        return m_path;
+    public DXRaftBootComponentConfig() {
+        super(DXRaftBootComponent.class, true, true);
     }
 
     /**
@@ -83,17 +65,10 @@ public class ZookeeperBootComponentConfig extends AbstractDXRAMComponentConfig {
     }
 
     /**
-     * Address and port of zookeeper
+     * Port the raft server should listen to
      */
-    public IPV4Unit getConnection() {
-        return m_connection;
-    }
-
-    /**
-     * Zookeeper timeout
-     */
-    public TimeUnit getTimeout() {
-        return m_timeout;
+    public int getPort() {
+        return port;
     }
 
     /**

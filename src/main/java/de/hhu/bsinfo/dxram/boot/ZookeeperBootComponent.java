@@ -366,9 +366,11 @@ public class ZookeeperBootComponent extends AbstractBootComponent<ZookeeperBootC
                     NodeCapabilities.toString(event.getCapabilities())));
 
             boolean readFromFile = m_nodes.getNode(event.getNodeID()) != null;
+
+            // TODO dxraftport in NodeJoinEvent
             m_nodes.addNode(new NodeEntry(event.getAddress(), event.getNodeID(), event.getRack(), event.getSwitch(),
                     event.getRole(), event.getCapabilities(), readFromFile,
-                    event.isAvailableForBackup(), true));
+                    event.isAvailableForBackup(), true, -1));
         }
     }
 

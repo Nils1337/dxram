@@ -31,3 +31,8 @@ if (isDevelop && new File('../dxgraph').exists()) {
 if (isDevelop && new File('../dxapp-helloworld').exists()) {
     includeBuild('../dxapp-helloworld')
 }
+
+if (isDevelop && new File('../dxraft').exists()) {
+    includeBuild('../dxraft')
+}
+

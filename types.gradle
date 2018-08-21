@@ -13,7 +13,7 @@ buildVariants {
     release {
         excludeLogger 'RELEASE'
         excludeStatistics 'RELEASE'
-        excludeNodeRoleAsserts 'RELEASE'
+        //excludeNodeRoleAsserts 'RELEASE'
 
         buildConfig {
             inheritsFrom 'debug'
@@ -24,7 +24,7 @@ buildVariants {
     performance {
         excludeLogger 'PERFORMANCE'
         excludeStatistics 'PERFORMANCE'
-        excludeNodeRoleAsserts 'PERFORMANCE'
+        //excludeNodeRoleAsserts 'PERFORMANCE'
 
         buildConfig {
             inheritsFrom 'debug'
