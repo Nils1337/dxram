@@ -198,12 +198,6 @@ public final class NodesConfiguration {
         @Expose
         private byte m_readFromFile = 1;
 
-        /**
-         * The port the dxraft server instance is listening to on this node. -1 if this node is not running dxraft.
-         */
-        @Expose
-        private int m_dxraftPort = -1;
-
         private short m_nodeID = NodeID.INVALID_ID;
         private boolean m_online = false;
         private boolean m_availableForBackup = true;
@@ -246,7 +240,7 @@ public final class NodesConfiguration {
          */
         NodeEntry(final IPV4Unit p_address, final short p_nodeID, final short p_rack, final short p_switch,
                 final NodeRole p_role, int p_capabilities, final boolean p_readFromFile,
-                final boolean p_availableForBackup, final boolean p_isOnline, final int p_dxraftPort) {
+                final boolean p_availableForBackup, final boolean p_isOnline) {
             assert p_rack >= 0;
             assert p_switch >= 0;
             assert p_role != null;
@@ -260,7 +254,6 @@ public final class NodesConfiguration {
             m_readFromFile = (byte) (p_readFromFile ? 1 : 0);
             m_availableForBackup = p_availableForBackup;
             m_online = p_isOnline;
-            m_dxraftPort = p_dxraftPort;
         }
 
         /**
@@ -360,10 +353,6 @@ public final class NodesConfiguration {
          */
         boolean getStatus() {
             return m_online;
-        }
-
-        int getDXRaftPort() {
-            return m_dxraftPort;
         }
 
         /**

@@ -29,11 +29,11 @@ public class DXRaftBootComponentConfig extends AbstractDXRAMComponentConfig {
         {
             // default values for local testing
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22221), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.SUPERPEER, NONE, true, true, false, 5254));
+                    (short) 0, NodeRole.SUPERPEER, NONE, true, true, false));
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22222), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false, -1));
+                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false));
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22223), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false, -1));
+                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false));
         }
     };
 
@@ -42,6 +42,13 @@ public class DXRaftBootComponentConfig extends AbstractDXRAMComponentConfig {
 
     @Expose
     private short m_switch = 0;
+
+    @Expose
+    private ArrayList<IPV4Unit> m_raftServers = new ArrayList<IPV4Unit>() {
+        {
+            add(new IPV4Unit("127.0.0.1", 5254));
+        }
+    };
 
     /**
      * Constructor
@@ -85,6 +92,10 @@ public class DXRaftBootComponentConfig extends AbstractDXRAMComponentConfig {
      */
     public ArrayList<NodesConfiguration.NodeEntry> getNodesConfig() {
         return m_nodesConfig;
+    }
+
+    public ArrayList<IPV4Unit> getRaftServers() {
+        return m_raftServers;
     }
 
     @Override

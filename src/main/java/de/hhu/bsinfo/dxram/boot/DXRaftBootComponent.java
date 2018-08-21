@@ -321,7 +321,7 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
             boolean readFromFile = m_nodes.getNode(event.getNodeID()) != null;
             m_nodes.addNode(new NodesConfiguration.NodeEntry(event.getAddress(), event.getNodeID(), event.getRack(), event.getSwitch(),
                     event.getRole(), event.getCapabilities(), readFromFile,
-                    event.isAvailableForBackup(), true, -1));
+                    event.isAvailableForBackup(), true));
         }
     }
 
@@ -437,18 +437,21 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
         // Apply changes
         childs = m_raftClient.readList("new");
-        for (RaftData child : childs) {
-            StringData data = (StringData) child;
-            Gson gson = new Gson();
-            NodesConfiguration.NodeEntry node = gson.fromJson(data.getData(), NodesConfiguration.NodeEntry.class);
-            nodeID = node.getNodeID();
-            m_bloomFilter.add(nodeID);
-            node.setStatus(true);
-            m_nodes.addNode(node);
 
-            if (nodeID == m_nodes.getOwnNodeID()) {
-                // NodeID was already re-used
-                m_nodes.setOwnNodeID(NodeID.INVALID_ID);
+        if (childs != null) {
+            for (RaftData child : childs) {
+                StringData data = (StringData) child;
+                Gson gson = new Gson();
+                NodesConfiguration.NodeEntry node = gson.fromJson(data.getData(), NodesConfiguration.NodeEntry.class);
+                nodeID = node.getNodeID();
+                m_bloomFilter.add(nodeID);
+                node.setStatus(true);
+                m_nodes.addNode(node);
+
+                if (nodeID == m_nodes.getOwnNodeID()) {
+                    // NodeID was already re-used
+                    m_nodes.setOwnNodeID(NodeID.INVALID_ID);
+                }
             }
         }
 
@@ -466,10 +469,10 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
             }
 
             if (obtained) {
-                // TODO values for backup, capabilities and raft correct?
+                // TODO values for backup, capabilities correct?
                 NodesConfiguration.NodeEntry node = new NodesConfiguration.NodeEntry(m_ownAddress, nodeID,
                         p_cmdLineRack, p_cmdLineSwitch, p_cmdLineNodeRole, NodeCapabilities.NONE,
-                        false, false, true, -1);
+                        false, false, true);
 
                 m_nodes.addNode(node);
                 Gson gson = new Gson();
@@ -487,10 +490,10 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
                 }
                 m_bloomFilter.add(nodeID);
 
-                // TODO values for backup, capabilities and raft correct?
+                // TODO values for backup, capabilities correct?
                 NodesConfiguration.NodeEntry node = new NodesConfiguration.NodeEntry(m_ownAddress, nodeID,
                         p_cmdLineRack, p_cmdLineSwitch, p_cmdLineNodeRole, NodeCapabilities.NONE,
-                        false, false, true, -1);
+                        false, false, true);
 
                 m_nodes.addNode(node);
                 // Set own NodeID
@@ -522,7 +525,7 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
         m_event.registerListener(this, NodeFailureEvent.class);
         m_event.registerListener(this, NodeJoinEvent.class);
-        initRaft(getConfig().getNodesConfig());
+        initRaft(getConfig().getRaftServers());
 
         m_isStarting = true;
 
@@ -539,16 +542,11 @@ public class DXRaftBootComponent extends AbstractBootComponent<DXRaftBootCompone
 
     }
 
-    private void initRaft(List<NodesConfiguration.NodeEntry> p_nodes) {
+    private void initRaft(List<IPV4Unit> p_raftServers) {
+        List<RaftAddress> addresses = new ArrayList<>(p_raftServers.size());
 
-        List<RaftAddress> addresses = new ArrayList<>(p_nodes.size());
-        for (NodesConfiguration.NodeEntry node: p_nodes) {
-
-            int port = node.getDXRaftPort();
-
-            if (port != -1) {
-                addresses.add(new RaftAddress(node.getAddress().getIP(), port));
-            }
+        for (IPV4Unit server: p_raftServers) {
+            addresses.add(new RaftAddress(server.getIP(), server.getPort()));
         }
 
         RaftContext clientContext = new RaftContext(addresses);

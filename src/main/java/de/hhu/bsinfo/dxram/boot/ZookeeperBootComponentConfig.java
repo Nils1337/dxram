@@ -40,11 +40,11 @@ public class ZookeeperBootComponentConfig extends AbstractDXRAMComponentConfig {
         {
             // default values for local testing
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22221), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.SUPERPEER, NONE, true, true, false ,-1));
+                    (short) 0, NodeRole.SUPERPEER, NONE, true, true, false));
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22222), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false, -1));
+                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false));
             add(new NodesConfiguration.NodeEntry(new IPV4Unit("127.0.0.1", 22223), NodeID.INVALID_ID, (short) 0,
-                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false, -1));
+                    (short) 0, NodeRole.PEER, toMask(STORAGE, COMPUTE), true, true, false));
         }
     };
 
