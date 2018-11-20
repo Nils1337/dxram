@@ -22,7 +22,7 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 @JsonRootName("node")
 @Accessors(prefix = "m_")
-public final class NodeDetails implements RaftData {
+public final class NodeDetails {
 
     /**
      * The node's id.
@@ -234,39 +234,6 @@ public final class NodeDetails implements RaftData {
 
         return new NodeDetails(tmpId, tmpIp, tmpPort, tmpRack, tmpSwitch,
                 NodeRole.getRoleByAcronym(tmpRole), tmpOnline, tmpBackup, tmpCapabilites);
-    }
-
-    @Override
-    public void exportObject(Exporter p_exporter) {
-        p_exporter.writeShort(m_id);
-        p_exporter.writeString(m_ip);
-        p_exporter.writeInt(m_port);
-        p_exporter.writeShort(m_rack);
-        p_exporter.writeShort(m_switch);
-        p_exporter.writeChar(m_role.getAcronym());
-        p_exporter.writeBoolean(m_online);
-        p_exporter.writeBoolean(m_availableForBackup);
-        p_exporter.writeInt(m_capabilities);
-    }
-
-    @Override
-    public void importObject(Importer p_importer) {
-        m_id = p_importer.readShort(m_id);
-        m_ip = p_importer.readString(m_ip);
-        m_port = p_importer.readInt(m_port);
-        m_rack = p_importer.readShort(m_rack);
-        m_switch = p_importer.readShort(m_switch);
-        char acronym = p_importer.readChar('a');
-        m_role = NodeRole.getRoleByAcronym(acronym);
-        m_online = p_importer.readBoolean(false);
-        m_availableForBackup = p_importer.readBoolean(false);
-        m_capabilities = p_importer.readInt(m_capabilities);
-    }
-
-    @Override
-    public int sizeofObject() {
-        return 3 * Short.BYTES + 2 * Integer.BYTES +
-                Character.BYTES + 2 * ObjectSizeUtil.sizeofBoolean() + ObjectSizeUtil.sizeofString(m_ip);
     }
 
     public static class Builder {

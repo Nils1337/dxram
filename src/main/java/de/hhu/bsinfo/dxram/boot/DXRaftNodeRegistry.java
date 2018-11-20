@@ -2,6 +2,7 @@ package de.hhu.bsinfo.dxram.boot;
 
 import de.hhu.bsinfo.dxraft.client.ClientConfig;
 import de.hhu.bsinfo.dxraft.client.RaftClient;
+import de.hhu.bsinfo.dxraft.data.ByteData;
 import de.hhu.bsinfo.dxraft.data.RaftData;
 import de.hhu.bsinfo.dxraft.server.RaftServer;
 import de.hhu.bsinfo.dxraft.server.ServerConfig;
@@ -49,7 +50,7 @@ public class DXRaftNodeRegistry implements NodeRegistry {
     public Collection<NodeDetails> getAll() {
         List<RaftData> nodes = m_client.readList(NODES_PATH);
         return nodes.stream()
-                .map(data -> (NodeDetails) data)
+                .map(data -> NodeDetails.fromByteArray(((ByteData)data).getData()))
                 .collect(Collectors.toList());
     }
 
@@ -57,7 +58,7 @@ public class DXRaftNodeRegistry implements NodeRegistry {
     public NodeDetails getDetails(short p_nodeId) {
         List<RaftData> nodes = m_client.readList(NODES_PATH);
         Optional<NodeDetails> nodeDetails =  nodes.stream()
-                .map(data -> (NodeDetails) data)
+                .map(data -> NodeDetails.fromByteArray(((ByteData)data).getData()))
                 .filter(details -> details.getId() == p_nodeId)
                 .findAny();
         if (nodeDetails.isPresent()) {
@@ -68,7 +69,7 @@ public class DXRaftNodeRegistry implements NodeRegistry {
 
     @Override
     public NodeDetails getBootstrapDetails() {
-        return (NodeDetails) m_raftClient.read(BOOTSTRAP_PATH);
+        return NodeDetails.fromByteArray(((ByteData)m_raftClient.read(BOOTSTRAP_PATH)).getData());
     }
 
     @Override
@@ -148,7 +149,7 @@ public class DXRaftNodeRegistry implements NodeRegistry {
     private boolean initializeBootstrapNode() {
         LOGGER.info("Starting bootstrap process");
 
-        if (!m_raftClient.write(BOOTSTRAP_PATH, m_nodeDetails, true)) {
+        if (!m_raftClient.write(BOOTSTRAP_PATH, new ByteData(m_nodeDetails.toByteArray()), true)) {
             LOGGER.error("Creating bootstrap entry failed");
             return false;
         }
