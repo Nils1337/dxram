@@ -54,7 +54,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
     /**
      * Constructor
      */
-    protected BootComponent() {
+    public BootComponent() {
         super(DXRAMComponentOrder.Init.BOOT, DXRAMComponentOrder.Shutdown.BOOT, BootComponentConfig.class);
     }
 
@@ -65,7 +65,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
         m_port = m_contextConfig.getEngineConfig().getAddress().getPort();
         m_role = m_contextConfig.getEngineConfig().getRole();
 
-        if (m_config.getNodeRegistry().equals("dxnet")) {
+        if (m_config.getNodeRegistry().equals("dxraft")) {
             m_nodeRegistry = new DXRaftNodeRegistry(m_config.getDxraftConfig());
         } else {
             m_nodeRegistry = new ZookeeperNodeRegistry(m_config.getZookeeperConfig());
