@@ -2,6 +2,7 @@ package de.hhu.bsinfo.dxram.engine;
 
 import java.io.File;
 
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,7 +10,6 @@ import de.hhu.bsinfo.dxram.app.ApplicationComponent;
 import de.hhu.bsinfo.dxram.app.ApplicationService;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.boot.BootService;
-import de.hhu.bsinfo.dxram.boot.ZookeeperBootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkAnonService;
 import de.hhu.bsinfo.dxram.chunk.ChunkBackupComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
@@ -60,7 +60,7 @@ public class DXRAMContextCreatorFileTest {
         comps.register(NameserviceComponent.class);
         comps.register(NetworkComponent.class);
         comps.register(NullComponent.class);
-        comps.register(ZookeeperBootComponent.class);
+        comps.register(BootComponent.class);
 
         DXRAMServiceManager services = new DXRAMServiceManager();
 

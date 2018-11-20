@@ -23,7 +23,7 @@ import de.hhu.bsinfo.dxnet.core.Message;
 import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkMigrationComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
@@ -59,7 +59,7 @@ public class MigrationManager implements MessageReceiver, ChunkMigrator {
 
     private final ExecutorService m_executor;
 
-    private final AbstractBootComponent m_boot;
+    private final BootComponent m_boot;
     private final BackupComponent m_backup;
     private final ChunkMigrationComponent m_chunkMigration;
     private final DXMem m_memory;
@@ -72,7 +72,7 @@ public class MigrationManager implements MessageReceiver, ChunkMigrator {
     public MigrationManager(int p_workerCount, final DXRAMComponentAccessor p_componentAccessor) {
         m_workerCount = p_workerCount;
         m_executor = Executors.newFixedThreadPool(p_workerCount, THREAD_FACTORY);
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_backup = p_componentAccessor.getComponent(BackupComponent.class);
         m_memory = p_componentAccessor.getComponent(ChunkComponent.class).getMemory();
         m_chunkMigration = p_componentAccessor.getComponent(ChunkMigrationComponent.class);

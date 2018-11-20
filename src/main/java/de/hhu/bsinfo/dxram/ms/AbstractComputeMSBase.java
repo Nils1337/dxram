@@ -20,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMServiceAccessor;
 import de.hhu.bsinfo.dxram.lookup.LookupComponent;
 import de.hhu.bsinfo.dxram.ms.messages.ExecuteTaskScriptRequest;
@@ -57,7 +57,7 @@ abstract class AbstractComputeMSBase extends Thread {
     @SuppressWarnings("checkstyle")
     protected NetworkComponent m_network;
     protected NameserviceComponent m_nameservice;
-    protected AbstractBootComponent m_boot;
+    protected BootComponent m_boot;
     protected LookupComponent m_lookup;
 
     protected volatile State m_state = State.STATE_SETUP;
@@ -88,9 +88,9 @@ abstract class AbstractComputeMSBase extends Thread {
      *         LookupComponent
      */
     AbstractComputeMSBase(final ComputeRole p_role, final short p_computeGroupId, final long p_pingIntervalMs,
-            final DXRAMServiceAccessor p_serviceAccessor,
-            final NetworkComponent p_network, final NameserviceComponent p_nameservice,
-            final AbstractBootComponent p_boot, final LookupComponent p_lookup) {
+                          final DXRAMServiceAccessor p_serviceAccessor,
+                          final NetworkComponent p_network, final NameserviceComponent p_nameservice,
+                          final BootComponent p_boot, final LookupComponent p_lookup) {
         super("ComputeMS-" + p_role + '-' + p_computeGroupId);
 
         LOGGER = LogManager.getFormatterLogger(getClass().getSimpleName());

@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import de.hhu.bsinfo.dxmonitor.util.DeviceLister;
 import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -44,7 +44,7 @@ public class MonitoringComponent extends AbstractDXRAMComponent<MonitoringCompon
     private PeerDXRAMMonitoringHandler m_dxramPeerHandler;
     private SuperpeerMonitoringHandler m_superpeerHandler;
 
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private NetworkComponent m_network;
     private LookupComponent m_lookup;
     private EventComponent m_event;
@@ -63,7 +63,7 @@ public class MonitoringComponent extends AbstractDXRAMComponent<MonitoringCompon
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);
         m_lookup = p_componentAccessor.getComponent(LookupComponent.class);
         m_event = p_componentAccessor.getComponent(EventComponent.class);

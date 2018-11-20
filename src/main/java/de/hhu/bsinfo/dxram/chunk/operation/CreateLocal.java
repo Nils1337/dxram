@@ -5,7 +5,7 @@ import java.util.Arrays;
 import de.hhu.bsinfo.dxmem.data.AbstractChunk;
 import de.hhu.bsinfo.dxmem.data.ChunkID;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkLocalService;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
@@ -62,7 +62,7 @@ public class CreateLocal extends AbstractOperation {
      * @param p_nameservice
      *         Instance of NameserviceComponent
      */
-    public CreateLocal(final Class<? extends AbstractDXRAMService> p_parentService, final AbstractBootComponent p_boot,
+    public CreateLocal(final Class<? extends AbstractDXRAMService> p_parentService, final BootComponent p_boot,
             final BackupComponent p_backup, final ChunkComponent p_chunk, final NetworkComponent p_network,
             final LookupComponent p_lookup, final NameserviceComponent p_nameservice) {
         super(p_parentService, p_boot, p_backup, p_chunk, p_network, p_lookup, p_nameservice);

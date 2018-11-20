@@ -16,7 +16,7 @@
 
 package de.hhu.bsinfo.dxram.ms;
 
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMServiceAccessor;
 import de.hhu.bsinfo.dxram.lookup.LookupComponent;
 import de.hhu.bsinfo.dxram.nameservice.NameserviceComponent;
@@ -45,7 +45,7 @@ class ComputeNone extends AbstractComputeMSBase {
      *         LookupComponent
      */
     ComputeNone(final DXRAMServiceAccessor p_serviceAccessor, final NetworkComponent p_network,
-            final NameserviceComponent p_nameservice, final AbstractBootComponent p_boot,
+            final NameserviceComponent p_nameservice, final BootComponent p_boot,
             final LookupComponent p_lookup) {
         super(ComputeRole.NONE, (short) -1, 0, p_serviceAccessor, p_network, p_nameservice, p_boot, p_lookup);
     }

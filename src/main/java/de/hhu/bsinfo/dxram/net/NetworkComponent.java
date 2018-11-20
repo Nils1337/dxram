@@ -31,7 +31,7 @@ import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxnet.core.Request;
 import de.hhu.bsinfo.dxnet.core.messages.Messages;
 import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -51,7 +51,7 @@ import de.hhu.bsinfo.dxram.net.events.ResponseDelayedEvent;
 public class NetworkComponent extends AbstractDXRAMComponent<NetworkComponentConfig>
         implements EventListener<NodeFailureEvent>, ConnectionManagerListener {
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private EventComponent m_event;
 
     // Attributes
@@ -263,7 +263,7 @@ public class NetworkComponent extends AbstractDXRAMComponent<NetworkComponentCon
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_event = p_componentAccessor.getComponent(EventComponent.class);
     }
 

@@ -17,7 +17,7 @@ import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.backup.BackupPeer;
 import de.hhu.bsinfo.dxram.backup.BackupRange;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkService;
 import de.hhu.bsinfo.dxram.chunk.messages.ChunkMessages;
@@ -73,9 +73,9 @@ public class Remove extends AbstractOperation implements MessageReceiver {
      *         Instance of NameserviceComponent
      */
     public Remove(final Class<? extends AbstractDXRAMService> p_parentService,
-            final AbstractBootComponent p_boot, final BackupComponent p_backup, final ChunkComponent p_chunk,
-            final NetworkComponent p_network, final LookupComponent p_lookup,
-            final NameserviceComponent p_nameservice, final int p_removerQueueSize) {
+                  final BootComponent p_boot, final BackupComponent p_backup, final ChunkComponent p_chunk,
+                  final NetworkComponent p_network, final LookupComponent p_lookup,
+                  final NameserviceComponent p_nameservice, final int p_removerQueueSize) {
         super(p_parentService, p_boot, p_backup, p_chunk, p_network, p_lookup, p_nameservice);
 
         m_remover = new ChunkRemover(p_removerQueueSize);

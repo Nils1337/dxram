@@ -26,7 +26,7 @@ import de.hhu.bsinfo.dxnet.MessageReceiver;
 import de.hhu.bsinfo.dxnet.core.Message;
 import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -64,7 +64,7 @@ public class JobService extends AbstractDXRAMService<JobServiceConfig> implement
     }
 
     // depdendent components
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private AbstractJobComponent m_job;
     private NetworkComponent m_network;
 
@@ -323,7 +323,7 @@ public class JobService extends AbstractDXRAMService<JobServiceConfig> implement
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_job = p_componentAccessor.getComponent(AbstractJobComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);
     }

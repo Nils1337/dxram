@@ -8,7 +8,7 @@ import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.backup.BackupPeer;
 import de.hhu.bsinfo.dxram.backup.BackupRange;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -25,7 +25,7 @@ import de.hhu.bsinfo.dxutils.NodeID;
 public class ChunkIndexComponent extends AbstractDXRAMComponent<ChunkIndexComponentConfig> {
     // component dependencies
     private BackupComponent m_backup;
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private ChunkComponent m_chunk;
     private NetworkComponent m_network;
 
@@ -111,7 +111,7 @@ public class ChunkIndexComponent extends AbstractDXRAMComponent<ChunkIndexCompon
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_backup = p_componentAccessor.getComponent(BackupComponent.class);
         m_chunk = p_componentAccessor.getComponent(ChunkComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);

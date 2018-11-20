@@ -19,7 +19,7 @@ package de.hhu.bsinfo.dxram.job;
 import java.util.concurrent.atomic.AtomicLong;
 
 import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
 import de.hhu.bsinfo.dxram.engine.DXRAMJNIManager;
@@ -34,7 +34,7 @@ import de.hhu.bsinfo.dxram.job.ws.WorkerDelegate;
 public class JobWorkStealingComponent extends AbstractJobComponent<JobWorkStealingComponentConfig>
         implements WorkerDelegate {
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
 
     private boolean m_enabled;
     private Worker[] m_workers;
@@ -111,7 +111,7 @@ public class JobWorkStealingComponent extends AbstractJobComponent<JobWorkSteali
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
     }
 
     @Override

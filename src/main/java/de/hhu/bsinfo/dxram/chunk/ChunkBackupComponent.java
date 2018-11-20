@@ -23,7 +23,7 @@ import de.hhu.bsinfo.dxmem.data.ChunkLockOperation;
 import de.hhu.bsinfo.dxmem.data.ChunkState;
 import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -40,7 +40,7 @@ import de.hhu.bsinfo.dxram.net.NetworkComponent;
 public class ChunkBackupComponent extends AbstractDXRAMComponent<ChunkBackupComponentConfig> {
 
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private ChunkComponent m_chunk;
     private NetworkComponent m_network;
 
@@ -170,7 +170,7 @@ public class ChunkBackupComponent extends AbstractDXRAMComponent<ChunkBackupComp
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_chunk = p_componentAccessor.getComponent(ChunkComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);
     }

@@ -10,7 +10,7 @@ import de.hhu.bsinfo.dxnet.core.Message;
 import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkService;
 import de.hhu.bsinfo.dxram.chunk.messages.ChunkMessages;
@@ -71,7 +71,7 @@ public class Create extends AbstractOperation implements MessageReceiver {
      * @param p_nameservice
      *         Instance of NameserviceComponent
      */
-    public Create(final Class<? extends AbstractDXRAMService> p_parentService, final AbstractBootComponent p_boot,
+    public Create(final Class<? extends AbstractDXRAMService> p_parentService, final BootComponent p_boot,
             final BackupComponent p_backup, final ChunkComponent p_chunk, final NetworkComponent p_network,
             final LookupComponent p_lookup, final NameserviceComponent p_nameservice) {
         super(p_parentService, p_boot, p_backup, p_chunk, p_network, p_lookup, p_nameservice);

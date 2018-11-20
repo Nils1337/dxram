@@ -45,7 +45,7 @@ import de.hhu.bsinfo.dxutils.NodeID;
  */
 public class BootService extends AbstractDXRAMService<BootServiceConfig> implements MessageReceiver {
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private NetworkComponent m_network;
 
     /**
@@ -334,7 +334,7 @@ public class BootService extends AbstractDXRAMService<BootServiceConfig> impleme
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);
     }
 

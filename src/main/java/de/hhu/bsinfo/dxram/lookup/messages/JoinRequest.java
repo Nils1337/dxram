@@ -20,8 +20,8 @@ import de.hhu.bsinfo.dxnet.core.AbstractMessageExporter;
 import de.hhu.bsinfo.dxnet.core.AbstractMessageImporter;
 import de.hhu.bsinfo.dxnet.core.Request;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
-import de.hhu.bsinfo.dxram.boot.NodeRegistry;
-import de.hhu.bsinfo.dxram.boot.NodesConfiguration;
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
+import de.hhu.bsinfo.dxram.boot.ZookeeperNodeRegistry;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
 
@@ -34,7 +34,7 @@ public class JoinRequest extends Request {
 
     private byte[] m_nodeDetails;
 
-    private NodeRegistry.NodeDetails m_cachedDetails = null;
+    private NodeDetails m_cachedDetails = null;
 
     /**
      * Creates an instance of JoinRequest
@@ -48,14 +48,14 @@ public class JoinRequest extends Request {
      *
      *  @param p_destination The destination's node id.
      */
-    public JoinRequest(final short p_destination, final NodeRegistry.NodeDetails p_details) {
+    public JoinRequest(final short p_destination, final NodeDetails p_details) {
         super(p_destination, DXRAMMessageTypes.LOOKUP_MESSAGES_TYPE, LookupMessages.SUBTYPE_JOIN_REQUEST);
         m_nodeDetails = p_details.toByteArray();
     }
 
-    public NodeRegistry.NodeDetails getNodeDetails() {
+    public NodeDetails getNodeDetails() {
         if (m_cachedDetails == null) {
-            m_cachedDetails = NodeRegistry.NodeDetails.fromByteArray(m_nodeDetails);
+            m_cachedDetails = NodeDetails.fromByteArray(m_nodeDetails);
         }
 
         return m_cachedDetails;

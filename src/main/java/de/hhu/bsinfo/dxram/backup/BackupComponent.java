@@ -29,7 +29,7 @@ import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.backup.ReplicaPlacement.AbstractPlacementStrategy;
 import de.hhu.bsinfo.dxram.backup.ReplicaPlacement.CopysetPlacement;
 import de.hhu.bsinfo.dxram.backup.ReplicaPlacement.RandomPlacement;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkBackupComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
@@ -62,7 +62,7 @@ public class BackupComponent extends AbstractDXRAMComponent<BackupComponentConfi
     private static final boolean REREPLICATION_ACTIVE = true;
 
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private ChunkBackupComponent m_chunkBackup;
     private LookupComponent m_lookup;
     private LogComponent m_log;
@@ -517,7 +517,7 @@ public class BackupComponent extends AbstractDXRAMComponent<BackupComponentConfi
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_chunkBackup = p_componentAccessor.getComponent(ChunkBackupComponent.class);
         m_lookup = p_componentAccessor.getComponent(LookupComponent.class);
         m_log = p_componentAccessor.getComponent(LogComponent.class);

@@ -24,8 +24,9 @@ import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.backup.BackupComponentConfig;
 import de.hhu.bsinfo.dxram.backup.BackupRange;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
-import de.hhu.bsinfo.dxram.boot.NodeRegistry;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
+import de.hhu.bsinfo.dxram.boot.ZookeeperNodeRegistry;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
 import de.hhu.bsinfo.dxram.chunk.data.ChunkAnon;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
@@ -64,7 +65,7 @@ public class LookupComponent extends AbstractDXRAMComponent<LookupComponentConfi
     private static final short ORDER = 10;
 
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private BackupComponent m_backup;
     private ChunkComponent m_chunk;
     private EventComponent m_event;
@@ -684,7 +685,7 @@ public class LookupComponent extends AbstractDXRAMComponent<LookupComponentConfi
     @Override
     public boolean finishInitComponent() {
         if (m_boot.getNodeRole() == NodeRole.PEER) {
-            NodeRegistry.NodeDetails details = m_boot.getDetails();
+            NodeDetails details = m_boot.getDetails();
 
             // Inform superpeer that this peer finished its startup process
             m_peer.finishStartup(m_boot.getRack(), m_boot.getSwitch(), m_backup.isActiveAndAvailableForBackup(),
@@ -707,7 +708,7 @@ public class LookupComponent extends AbstractDXRAMComponent<LookupComponentConfi
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
         m_backup = p_componentAccessor.getComponent(BackupComponent.class);
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_chunk = p_componentAccessor.getComponent(ChunkComponent.class);
         m_event = p_componentAccessor.getComponent(EventComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);

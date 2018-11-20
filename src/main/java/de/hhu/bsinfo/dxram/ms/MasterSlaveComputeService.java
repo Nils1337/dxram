@@ -32,7 +32,7 @@ import de.hhu.bsinfo.dxnet.MessageReceiver;
 import de.hhu.bsinfo.dxnet.core.Message;
 import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -62,7 +62,7 @@ public class MasterSlaveComputeService extends AbstractDXRAMService<MasterSlaveC
     // component dependencies
     private NetworkComponent m_network;
     private NameserviceComponent m_nameservice;
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private LookupComponent m_lookup;
 
     private AbstractComputeMSBase m_computeMSInstance;
@@ -393,7 +393,7 @@ public class MasterSlaveComputeService extends AbstractDXRAMService<MasterSlaveC
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);
         m_nameservice = p_componentAccessor.getComponent(NameserviceComponent.class);
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_lookup = p_componentAccessor.getComponent(LookupComponent.class);
     }
 

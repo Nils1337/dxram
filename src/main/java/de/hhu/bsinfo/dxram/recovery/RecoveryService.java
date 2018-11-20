@@ -30,7 +30,7 @@ import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.backup.BackupRange;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkBackupComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
@@ -53,7 +53,7 @@ import de.hhu.bsinfo.dxutils.jni.JNIFileRaw;
  */
 public class RecoveryService extends AbstractDXRAMService<RecoveryServiceConfig> implements MessageReceiver {
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private BackupComponent m_backup;
     private ChunkBackupComponent m_chunkBackup;
     private LogComponent m_log;
@@ -103,7 +103,7 @@ public class RecoveryService extends AbstractDXRAMService<RecoveryServiceConfig>
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_backup = p_componentAccessor.getComponent(BackupComponent.class);
         m_chunkBackup = p_componentAccessor.getComponent(ChunkBackupComponent.class);
         m_log = p_componentAccessor.getComponent(LogComponent.class);

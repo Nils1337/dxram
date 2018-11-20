@@ -17,7 +17,7 @@
 package de.hhu.bsinfo.dxram.chunk;
 
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.operation.Dump;
 import de.hhu.bsinfo.dxram.chunk.operation.Reset;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
@@ -34,7 +34,7 @@ import de.hhu.bsinfo.dxram.net.NetworkComponent;
  */
 public class ChunkDebugService extends AbstractDXRAMService<ChunkDebugServiceConfig> {
     // component dependencies
-    private AbstractBootComponent m_boot;
+    private BootComponent m_boot;
     private BackupComponent m_backup;
     private ChunkComponent m_chunk;
     private NetworkComponent m_network;
@@ -81,7 +81,7 @@ public class ChunkDebugService extends AbstractDXRAMService<ChunkDebugServiceCon
 
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
-        m_boot = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
         m_backup = p_componentAccessor.getComponent(BackupComponent.class);
         m_chunk = p_componentAccessor.getComponent(ChunkComponent.class);
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);

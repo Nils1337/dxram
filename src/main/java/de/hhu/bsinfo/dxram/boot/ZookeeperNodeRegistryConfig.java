@@ -12,17 +12,19 @@ import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.unit.IPV4Unit;
 import de.hhu.bsinfo.dxutils.unit.StorageUnit;
 import de.hhu.bsinfo.dxutils.unit.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Config for the ZookeeperBootComponent
+ * Config for the ZookeeperNodeRegistry
  *
  * @author Stefan Nothaas, stefan.nothaas@hhu.de, 24.05.2017
  */
 @Data
 @Accessors(prefix = "m_")
-@EqualsAndHashCode(callSuper = false)
-@DXRAMComponentConfig.Settings(component = ZookeeperBootComponent.class, supportsSuperpeer = true, supportsPeer = true)
-public class ZookeeperBootComponentConfig extends DXRAMComponentConfig {
+public class ZookeeperNodeRegistryConfig {
+    private static final Logger LOGGER = LogManager.getFormatterLogger(ZookeeperNodeRegistryConfig.class);
+
     /**
      * Path for zookeeper entry
      */
@@ -59,7 +61,6 @@ public class ZookeeperBootComponentConfig extends DXRAMComponentConfig {
     @Expose
     private boolean m_isClient = false;
 
-    @Override
     protected boolean verify(final DXRAMContext.Config p_config) {
         if (m_bitfieldSize.getBytes() < 2048 * 1024) {
             LOGGER.warn("Bitfield size is rather small. Not all node IDs may be addressable because of high " +

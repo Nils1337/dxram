@@ -1,7 +1,9 @@
 package de.hhu.bsinfo.dxram;
 
 import de.hhu.bsinfo.dxram.backup.BackupComponentConfig;
-import de.hhu.bsinfo.dxram.boot.ZookeeperBootComponentConfig;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponentConfig;
+import de.hhu.bsinfo.dxram.boot.ZookeeperNodeRegistryConfig;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentManager;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
 import de.hhu.bsinfo.dxram.engine.DXRAMContextCreator;
@@ -50,7 +52,7 @@ class DXRAMTestContextCreator implements DXRAMContextCreator {
         context.getConfig().getEngineConfig().setRole(m_config.nodes()[m_nodeIdx].nodeRole().toString());
         context.getConfig().getEngineConfig().setAddress(new IPV4Unit("127.0.0.1", m_nodePort));
 
-        context.getConfig().getComponentConfig(ZookeeperBootComponentConfig.class).setConnection(
+        context.getConfig().getComponentConfig(BootComponentConfig.class).getZookeeperConfig().setConnection(
                 m_zookeeperConnection);
 
         context.getConfig().getComponentConfig(BackupComponentConfig.class).setBackupActive(

@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.hhu.bsinfo.dxram.backup.BackupComponent;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
 import de.hhu.bsinfo.dxram.lookup.LookupComponent;
@@ -19,7 +19,7 @@ import de.hhu.bsinfo.dxram.net.NetworkComponent;
  */
 class AbstractOperation {
     protected Logger m_logger;
-    protected AbstractBootComponent m_boot;
+    protected BootComponent m_boot;
     protected BackupComponent m_backup;
     protected ChunkComponent m_chunk;
     protected NetworkComponent m_network;
@@ -45,9 +45,9 @@ class AbstractOperation {
      *         Instance of NameserviceComponent
      */
     AbstractOperation(final Class<? extends AbstractDXRAMService> p_parentService,
-            final AbstractBootComponent p_boot, final BackupComponent p_backup, final ChunkComponent p_chunk,
-            final NetworkComponent p_network, final LookupComponent p_lookup,
-            final NameserviceComponent p_nameservice) {
+                      final BootComponent p_boot, final BackupComponent p_backup, final ChunkComponent p_chunk,
+                      final NetworkComponent p_network, final LookupComponent p_lookup,
+                      final NameserviceComponent p_nameservice) {
         m_logger = LogManager.getFormatterLogger(p_parentService.getSimpleName());
         m_boot = p_boot;
         m_backup = p_backup;

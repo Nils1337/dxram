@@ -10,7 +10,7 @@ import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.app.messages.ApplicationMessages;
 import de.hhu.bsinfo.dxram.app.messages.ApplicationStartRequest;
 import de.hhu.bsinfo.dxram.app.messages.ApplicationStartResponse;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -25,7 +25,7 @@ import de.hhu.bsinfo.dxram.net.NetworkComponent;
 public class ApplicationService extends AbstractDXRAMService<ApplicationServiceConfig> implements MessageReceiver {
     // component dependencies
     private ApplicationComponent m_appComponent;
-    private AbstractBootComponent m_bootComponent;
+    private BootComponent m_bootComponent;
     private NetworkComponent m_networkComponent;
 
     private static final String ARG_SEPERATOR = "@";
@@ -139,7 +139,7 @@ public class ApplicationService extends AbstractDXRAMService<ApplicationServiceC
     @Override
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
         m_appComponent = p_componentAccessor.getComponent(ApplicationComponent.class);
-        m_bootComponent = p_componentAccessor.getComponent(AbstractBootComponent.class);
+        m_bootComponent = p_componentAccessor.getComponent(BootComponent.class);
         m_networkComponent = p_componentAccessor.getComponent(NetworkComponent.class);
     }
 

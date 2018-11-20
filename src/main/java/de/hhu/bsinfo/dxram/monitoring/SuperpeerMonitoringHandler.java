@@ -17,7 +17,7 @@
 package de.hhu.bsinfo.dxram.monitoring;
 
 import de.hhu.bsinfo.dxmonitor.state.SystemState;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.event.AbstractEvent;
 import de.hhu.bsinfo.dxram.event.EventComponent;
 import de.hhu.bsinfo.dxram.event.EventListener;
@@ -47,7 +47,7 @@ public class SuperpeerMonitoringHandler extends Thread implements EventListener<
     private volatile boolean m_shouldShutdown;
     private HashMap<Short, MonitoringSysDxramWrapper> m_sysInfos;
 
-    private AbstractBootComponent m_bootComponent;
+    private BootComponent m_bootComponent;
     private EventComponent m_eventComponent;
 
     private String m_monitoringFolder;
@@ -63,7 +63,7 @@ public class SuperpeerMonitoringHandler extends Thread implements EventListener<
      * @param p_eventComponent   EventComponent Instance
      * @param p_monitoringFolder path to monitoring folder
      */
-    SuperpeerMonitoringHandler(final float p_secondDelay, final AbstractBootComponent p_bootComponent,
+    SuperpeerMonitoringHandler(final float p_secondDelay, final BootComponent p_bootComponent,
                                final EventComponent p_eventComponent, final String p_monitoringFolder) {
         m_collectedData = new ArrayList<>();
         m_sysInfos = new HashMap<>();

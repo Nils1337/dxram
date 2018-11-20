@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.hhu.bsinfo.dxnet.NodeMap;
-import de.hhu.bsinfo.dxram.boot.AbstractBootComponent;
-import de.hhu.bsinfo.dxram.boot.NodeRegistry;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
+import de.hhu.bsinfo.dxram.boot.NodeRegistryListener;
+import de.hhu.bsinfo.dxram.boot.ZookeeperNodeRegistry;
 
 /**
  * Wrapper interface to hide the boot component for dxnet
@@ -30,8 +32,8 @@ import de.hhu.bsinfo.dxram.boot.NodeRegistry;
  *
  * @author Stefan Nothaas, stefan.nothaas@hhu.de, 26.01.2016
  */
-class NodeMappings implements NodeMap, NodeRegistry.Listener {
-    private AbstractBootComponent m_boot;
+class NodeMappings implements NodeMap, NodeRegistryListener {
+    private BootComponent m_boot;
 
     private List<NodeMap.Listener> m_listener;
 
@@ -41,7 +43,7 @@ class NodeMappings implements NodeMap, NodeRegistry.Listener {
      * @param p_bootComponent
      *         Boot component instance to wrap.
      */
-    NodeMappings(final AbstractBootComponent p_bootComponent) {
+    NodeMappings(final BootComponent p_bootComponent) {
         m_boot = p_bootComponent;
         m_listener = new ArrayList<>();
 
@@ -61,9 +63,9 @@ class NodeMappings implements NodeMap, NodeRegistry.Listener {
     @Override
     public List<Mapping> getAvailableMappings() {
         List<Mapping> mappings = new ArrayList<>();
-        List<NodeRegistry.NodeDetails> details = m_boot.getOnlineNodes();
+        List<NodeDetails> details = m_boot.getOnlineNodes();
 
-        for (NodeRegistry.NodeDetails detail : details) {
+        for (NodeDetails detail : details) {
             mappings.add(new Mapping(detail.getId(), detail.getAddress()));
         }
 
@@ -76,35 +78,35 @@ class NodeMappings implements NodeMap, NodeRegistry.Listener {
     }
 
     @Override
-    public void onPeerJoined(final NodeRegistry.NodeDetails p_nodeDetails) {
+    public void onPeerJoined(final NodeDetails p_nodeDetails) {
         for (NodeMap.Listener listener : m_listener) {
             listener.nodeMappingAdded(p_nodeDetails.getId(), p_nodeDetails.getAddress());
         }
     }
 
     @Override
-    public void onPeerLeft(final NodeRegistry.NodeDetails p_nodeDetails) {
+    public void onPeerLeft(final NodeDetails p_nodeDetails) {
         for (NodeMap.Listener listener : m_listener) {
             listener.nodeMappingRemoved(p_nodeDetails.getId());
         }
     }
 
     @Override
-    public void onSuperpeerJoined(final NodeRegistry.NodeDetails p_nodeDetails) {
+    public void onSuperpeerJoined(final NodeDetails p_nodeDetails) {
         for (NodeMap.Listener listener : m_listener) {
             listener.nodeMappingAdded(p_nodeDetails.getId(), p_nodeDetails.getAddress());
         }
     }
 
     @Override
-    public void onSuperpeerLeft(final NodeRegistry.NodeDetails p_nodeDetails) {
+    public void onSuperpeerLeft(final NodeDetails p_nodeDetails) {
         for (NodeMap.Listener listener : m_listener) {
             listener.nodeMappingRemoved(p_nodeDetails.getId());
         }
     }
 
     @Override
-    public void onNodeUpdated(final NodeRegistry.NodeDetails p_nodeDetails) {
+    public void onNodeUpdated(final NodeDetails p_nodeDetails) {
 
     }
 }

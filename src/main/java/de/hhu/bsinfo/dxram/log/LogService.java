@@ -21,7 +21,7 @@ import de.hhu.bsinfo.dxnet.core.Message;
 import de.hhu.bsinfo.dxnet.core.MessageHeader;
 import de.hhu.bsinfo.dxnet.core.NetworkException;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
-import de.hhu.bsinfo.dxram.boot.ZookeeperBootComponent;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMService;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -47,7 +47,7 @@ public final class LogService extends AbstractDXRAMService<LogServiceConfig> imp
     // component dependencies
     private NetworkComponent m_network;
     private LogComponent m_log;
-    private ZookeeperBootComponent m_boot;
+    private BootComponent m_boot;
 
     /**
      * Constructor
@@ -141,7 +141,7 @@ public final class LogService extends AbstractDXRAMService<LogServiceConfig> imp
     protected void resolveComponentDependencies(final DXRAMComponentAccessor p_componentAccessor) {
         m_network = p_componentAccessor.getComponent(NetworkComponent.class);
         m_log = p_componentAccessor.getComponent(LogComponent.class);
-        m_boot = p_componentAccessor.getComponent(ZookeeperBootComponent.class);
+        m_boot = p_componentAccessor.getComponent(BootComponent.class);
     }
 
     @Override

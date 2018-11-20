@@ -31,3 +31,7 @@ if (isDevelop && new File('../dxnet').exists()) {
 if (isDevelop && new File('../dxlog').exists()) {
     includeBuild('../dxlog')
 }
+
+if (isDevelop && new File('../dxraft').exists()) {
+    includeBuild('../dxraft')
+}
