@@ -57,12 +57,14 @@ public class DXRaftNodeRegistry implements NodeRegistry {
     @Override
     public NodeDetails getDetails(short p_nodeId) {
         List<RaftData> nodes = m_client.readList(NODES_PATH);
-        Optional<NodeDetails> nodeDetails =  nodes.stream()
-                .map(data -> NodeDetails.fromByteArray(((ByteData)data).getData()))
-                .filter(details -> details.getId() == p_nodeId)
-                .findAny();
-        if (nodeDetails.isPresent()) {
-            return nodeDetails.get();
+        if (nodes != null) {
+            Optional<NodeDetails> nodeDetails = nodes.stream()
+                    .map(data -> NodeDetails.fromByteArray(((ByteData) data).getData()))
+                    .filter(details -> details.getId() == p_nodeId)
+                    .findAny();
+            if (nodeDetails.isPresent()) {
+                return nodeDetails.get();
+            }
         }
         return null;
     }
