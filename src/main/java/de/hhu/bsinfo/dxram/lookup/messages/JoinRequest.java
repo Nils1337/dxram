@@ -21,7 +21,6 @@ import de.hhu.bsinfo.dxnet.core.AbstractMessageImporter;
 import de.hhu.bsinfo.dxnet.core.Request;
 import de.hhu.bsinfo.dxram.DXRAMMessageTypes;
 import de.hhu.bsinfo.dxram.boot.NodeDetails;
-import de.hhu.bsinfo.dxram.boot.ZookeeperNodeRegistry;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
 

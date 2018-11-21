@@ -24,7 +24,6 @@ import de.hhu.bsinfo.dxnet.NodeMap;
 import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.boot.NodeDetails;
 import de.hhu.bsinfo.dxram.boot.NodeRegistryListener;
-import de.hhu.bsinfo.dxram.boot.ZookeeperNodeRegistry;
 
 /**
  * Wrapper interface to hide the boot component for dxnet

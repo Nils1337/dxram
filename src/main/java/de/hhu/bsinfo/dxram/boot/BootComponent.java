@@ -25,8 +25,14 @@ import de.hhu.bsinfo.dxram.backup.BackupComponentConfig;
 import de.hhu.bsinfo.dxram.backup.BackupPeer;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponentConfig;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
+import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
 import de.hhu.bsinfo.dxram.engine.DXRAMJNIManager;
+import de.hhu.bsinfo.dxram.event.AbstractEvent;
+import de.hhu.bsinfo.dxram.event.EventComponent;
+import de.hhu.bsinfo.dxram.event.EventListener;
+import de.hhu.bsinfo.dxram.failure.events.NodeFailureEvent;
+import de.hhu.bsinfo.dxram.lookup.events.NodeJoinEvent;
 import de.hhu.bsinfo.dxram.util.NodeCapabilities;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.NodeID;
@@ -40,7 +46,7 @@ import de.hhu.bsinfo.dxutils.NodeID;
  * @author Stefan Nothaas, stefan.nothaas@hhu.de, 26.01.2016
  * @author Filip Krakowski, Filip.Krakowski@hhu.de, 18.05.2018
  */
-public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
+public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> implements EventListener<AbstractEvent> {
     private static final InetSocketAddress INVALID_ADDRESS = new InetSocketAddress("255.255.255.255", 0xFFFF);
 
     private DXRAMContext.Config m_contextConfig;
@@ -49,7 +55,15 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
     private String m_address;
     private int m_port;
     private NodeRole m_role;
+    private ConsensusHandler m_consensusHandler;
     private NodeRegistry m_nodeRegistry;
+    private NodeDetails m_nodeDetails;
+    private EventComponent m_eventComponent;
+
+    @Override
+    protected void resolveComponentDependencies(DXRAMComponentAccessor p_componentAccessor) {
+        m_eventComponent = p_componentAccessor.getComponent(EventComponent.class);
+    }
 
     /**
      * Constructor
@@ -61,18 +75,19 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
     @Override
     protected boolean initComponent(DXRAMContext.Config p_config, DXRAMJNIManager p_jniManager) {
         m_contextConfig = p_config;
-        m_address = m_contextConfig.getEngineConfig().getAddress().getIP();
-        m_port = m_contextConfig.getEngineConfig().getAddress().getPort();
-        m_role = m_contextConfig.getEngineConfig().getRole();
+        m_nodeDetails = buildNodeDetails();
+        m_nodeRegistry = new NodeRegistry();
+        m_eventComponent.registerListener(this, NodeJoinEvent.class);
+        m_eventComponent.registerListener(this, NodeFailureEvent.class);
 
         if (m_config.getNodeRegistry().equals("dxraft")) {
-            m_nodeRegistry = new DXRaftNodeRegistry(m_config.getDxraftConfig());
+            m_consensusHandler = new DXRaftHandler(m_config.getDxraftConfig());
         } else {
-            m_nodeRegistry = new ZookeeperNodeRegistry(m_config.getZookeeperConfig());
+            m_consensusHandler = new ZookeeperHandler(m_config.getZookeeperConfig());
         }
 
         try {
-            m_nodeRegistry.start(buildNodeDetails());
+            m_consensusHandler.start(m_nodeDetails);
         } catch (Exception e) {
             LOGGER.error("Starting node registry failed", e);
             return false;
@@ -107,7 +122,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
      */
     @Override
     protected boolean shutdownComponent() {
-        m_nodeRegistry.close();
+        m_consensusHandler.close();
         return true;
     }
 
@@ -116,13 +131,14 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
      *
      * @return This node's details.
      */
-    protected NodeDetails buildNodeDetails() {
-        return NodeDetails.builder(NodeID.INVALID_ID, m_address, m_port)
-                .withRole(m_role)
+    private NodeDetails buildNodeDetails() {
+        return NodeDetails.builder(NodeID.INVALID_ID, m_contextConfig.getEngineConfig().getAddress().getIP(),
+                m_contextConfig.getEngineConfig().getAddress().getPort())
+                .withRole(m_contextConfig.getEngineConfig().getRole())
                 .withRack(m_config.getRack())
                 .withSwitch(m_config.getSwitch())
                 .withOnline(true)
-                .withCapabilities(detectNodeCapabilities())
+                .withCapabilities(detectNodeCapabilities(m_contextConfig.getEngineConfig().getRole()))
                 .build();
     }
 
@@ -131,8 +147,8 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
      *
      * @return This node's capabilities.
      */
-    private int detectNodeCapabilities() {
-        if (m_role == NodeRole.SUPERPEER) {
+    private int detectNodeCapabilities(NodeRole p_role) {
+        if (p_role == NodeRole.SUPERPEER) {
             return NodeCapabilities.NONE;
         }
 
@@ -163,22 +179,12 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
     }
 
     /**
-     * Register a node registry listener
-     *
-     * @param p_listener
-     *         Listener to register
-     */
-    public void registerRegistryListener(final NodeRegistryListener p_listener) {
-        m_nodeRegistry.registerListener(p_listener);
-    }
-
-    /**
      * Returns this node's details.
      *
      * @return This node's details.
      */
     public NodeDetails getDetails() {
-        return m_nodeRegistry.getDetails();
+        return m_nodeDetails;
     }
 
     /**
@@ -272,13 +278,13 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
      *         The updated capabilities.
      */
     public void updateNodeCapabilities(int p_capabilities) {
-        NodeDetails oldDetails = m_nodeRegistry.getDetails();
-
-        if (oldDetails == null) {
-            throw new IllegalStateException("Lost own node information");
-        }
-
-        m_nodeRegistry.updateNodeDetails(oldDetails.withCapabilities(p_capabilities));
+//        NodeDetails oldDetails = m_consensusHandler.getDetails();
+//
+//        if (oldDetails == null) {
+//            throw new IllegalStateException("Lost own node information");
+//        }
+//
+//        m_consensusHandler.updateNodeDetails(oldDetails.withCapabilities(p_capabilities));
     }
 
     /**
@@ -287,7 +293,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
      * @return Node ID assigned for bootstrapping or -1 if no bootstrap assigned/available.
      */
     public short getBootstrapId() {
-        NodeDetails bootstrapDetails = m_nodeRegistry.getBootstrapDetails();
+        NodeDetails bootstrapDetails = m_consensusHandler.getBootstrapDetails();
 
         if (bootstrapDetails == null) {
             return NodeID.INVALID_ID;
@@ -297,19 +303,19 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
     }
 
     public short getNodeId() {
-        return getDetails().getId();
+        return m_nodeDetails.getId();
     }
 
     public NodeRole getNodeRole() {
-        return getDetails().getRole();
+        return m_nodeDetails.getRole();
     }
 
     public short getRack() {
-        return getDetails().getRack();
+        return m_nodeDetails.getRack();
     }
 
     public short getSwitch() {
-        return getDetails().getSwitch();
+        return m_nodeDetails.getSwitch();
     }
 
     public int getNumberOfAvailableSuperpeers() {
@@ -358,5 +364,31 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> {
         }
 
         return details.getCapabilities();
+    }
+
+    public void registerRegistryListener(NodeRegistryListener p_listener) {
+        m_nodeRegistry.registerRegistryListener(p_listener);
+    }
+
+    @Override
+    public void eventTriggered(AbstractEvent p_event) {
+        if (p_event instanceof NodeJoinEvent) {
+            NodeJoinEvent joinEvent = (NodeJoinEvent) p_event;
+            NodeDetails newNode = NodeDetails.builder(joinEvent.getNodeID(), joinEvent.getAddress().getIP(),
+                    joinEvent.getAddress().getPort())
+                    .withAvailableForBackup(joinEvent.isAvailableForBackup())
+                    .withCapabilities(joinEvent.getCapabilities())
+                    .withOnline(true)
+                    .withRack(joinEvent.getRack())
+                    .withSwitch(joinEvent.getSwitch())
+                    .withRole(joinEvent.getRole())
+                    .build();
+            m_nodeRegistry.addNewNode(newNode);
+        } else if (p_event instanceof NodeFailureEvent) {
+            NodeFailureEvent failureEvent = (NodeFailureEvent) p_event;
+            m_nodeRegistry.removeNode(failureEvent.getNodeID());
+            // TODO this should only do one node
+            m_consensusHandler.freeNodeId(failureEvent.getNodeID());
+        }
     }
 }

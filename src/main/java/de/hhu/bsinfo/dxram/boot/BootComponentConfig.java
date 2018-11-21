@@ -31,8 +31,8 @@ public class BootComponentConfig extends DXRAMComponentConfig {
     private boolean m_isClient = false;
 
     @Expose
-    private ZookeeperNodeRegistryConfig m_zookeeperConfig = new ZookeeperNodeRegistryConfig();
+    private ZookeeperHandlerConfig m_zookeeperConfig = new ZookeeperHandlerConfig();
 
     @Expose
-    private DXRaftNodeRegistryConfig m_dxraftConfig = new DXRaftNodeRegistryConfig();
+    private DXRaftHandlerConfig m_dxraftConfig = new DXRaftHandlerConfig();
 }

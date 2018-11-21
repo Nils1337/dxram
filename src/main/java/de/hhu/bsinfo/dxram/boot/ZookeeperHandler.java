@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Sets;
 
 import de.hhu.bsinfo.dxutils.CRC16;
-import lombok.EqualsAndHashCode;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -47,7 +46,6 @@ import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 import org.apache.curator.x.discovery.details.ServiceCacheListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import de.hhu.bsinfo.dxram.util.NodeCapabilities;
@@ -55,8 +53,8 @@ import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.NodeID;
 
 @SuppressWarnings("WeakerAccess")
-public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry {
-    private static final Logger LOGGER = LogManager.getFormatterLogger(ZookeeperNodeRegistry.class);
+public class ZookeeperHandler implements ServiceCacheListener, ConsensusHandler {
+    private static final Logger LOGGER = LogManager.getFormatterLogger(ZookeeperHandler.class);
     private static final RetryPolicy RETRY_POLICY = new ExponentialBackoffRetry(1000, 3);
 
     private static final String BASE_DIR = "/dxram";
@@ -79,7 +77,7 @@ public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry
     private ServiceDiscovery<NodeDetails> m_serviceDiscovery;
     private ServiceInstance<NodeDetails> m_instance;
     private ServiceCache<NodeDetails> m_cache;
-    private ZookeeperNodeRegistryConfig m_config;
+    private ZookeeperHandlerConfig m_config;
     private DistributedAtomicInteger m_counter;
     private int m_counterValue = INVALID_COUNTER_VALUE;
     private NodeDetails m_details;
@@ -93,7 +91,7 @@ public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry
         PEER_JOINED, PEER_LEFT, SUPERPEER_JOINED, SUPERPEER_LEFT, NODE_UPDATED
     }
 
-    ZookeeperNodeRegistry(ZookeeperNodeRegistryConfig p_config) {
+    ZookeeperHandler(ZookeeperHandlerConfig p_config) {
         m_config = p_config;
     }
 
@@ -330,6 +328,11 @@ public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry
         return NodeDetails.fromByteArray(bootBytes);
     }
 
+    @Override
+    public void freeNodeId(short p_id) {
+        // TODO
+    }
+
     /**
      * Indicates if this node is responsible for the bootstrap process.
      *
@@ -397,7 +400,7 @@ public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry
      *         The node's id.
      * @return The specified node's details.
      */
-    @Override
+    //@Override
     public @Nullable NodeDetails getDetails(final short p_nodeId) {
         NodeDetails details = m_serviceMap.get(p_nodeId);
 
@@ -434,7 +437,7 @@ public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry
      *
      * @return This node's details.
      */
-    @Override
+    //@Override
     public @Nullable NodeDetails getDetails() {
         NodeDetails details = m_instance.getPayload();
 
@@ -450,7 +453,7 @@ public class ZookeeperNodeRegistry implements ServiceCacheListener, NodeRegistry
      *
      * @return All known NodeDetails.
      */
-    @Override
+    //@Override
     public Collection<NodeDetails> getAll() {
         return m_serviceMap.values();
     }
