@@ -81,8 +81,8 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
         m_eventComponent.registerListener(this, NodeJoinEvent.class);
         m_eventComponent.registerListener(this, NodeFailureEvent.class);
 
-        if (m_config.getNodeRegistry().equals("dxraft")) {
-            m_consensusHandler = new DXRaftHandler(m_config.getDxraftConfig());
+        if ("dxraft".equals(m_config.getConsensusProvider())) {
+            m_consensusHandler = new DXRaftHandler(m_config);
         } else {
             m_consensusHandler = new ZookeeperHandler(m_config.getZookeeperConfig());
         }

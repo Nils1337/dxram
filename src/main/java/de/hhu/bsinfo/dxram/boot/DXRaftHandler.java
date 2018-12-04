@@ -34,6 +34,7 @@ public class DXRaftHandler implements ConsensusHandler {
 
     private NodeDetails m_nodeDetails;
     private DXRaftHandlerConfig m_config;
+    private BootComponentConfig m_bootConfig;
     private RaftServer m_raftServer;
     private RaftClient m_raftClient;
 
@@ -41,8 +42,9 @@ public class DXRaftHandler implements ConsensusHandler {
     private DistributedAtomicInteger m_atomicInteger;
     private int m_counterValue = -1;
 
-    public DXRaftHandler(DXRaftHandlerConfig p_config) {
-        m_config = p_config;
+    public DXRaftHandler(BootComponentConfig p_bootConfig) {
+        m_config = p_bootConfig.getDxraftConfig();
+        m_bootConfig = p_bootConfig;
     }
 
 
@@ -189,7 +191,7 @@ public class DXRaftHandler implements ConsensusHandler {
 
         // update bloom filter with id bitmap from raft
         Bitmap bitmap = (Bitmap) m_raftClient.read(ID_BITMAP_PATH, false).getData();
-        BloomFilter bloomFilter = new BloomFilter((int) Math.pow(2, 20), 65536);
+        BloomFilter bloomFilter = new BloomFilter((int) m_bootConfig.getBitfieldSize().getBytes(), 65536);
 
         if (bitmap == null) {
             throw new IllegalStateException("Failed reading bitmap from raft");

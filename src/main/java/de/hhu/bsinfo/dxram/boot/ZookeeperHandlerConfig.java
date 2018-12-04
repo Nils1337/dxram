@@ -37,39 +37,4 @@ public class ZookeeperHandlerConfig {
 
     @Expose
     private TimeUnit m_timeout = new TimeUnit(10, TimeUnit.SEC);
-
-    /**
-     * Bloom filter size. Bloom filter is used to increase node ID creation performance.
-     */
-    @Expose
-    private StorageUnit m_bitfieldSize = new StorageUnit(2, StorageUnit.MB);
-
-    /**
-     * The rack this node is in. Must be set if node was not in initial nodes file.
-     */
-    @Expose
-    private short m_rack = 0;
-
-    /**
-     * The switch this node is connected to. Must be set if node was not in initial nodes file.
-     */
-    @Expose
-    private short m_switch = 0;
-
-    @Expose
-    private boolean m_isClient = false;
-
-    protected boolean verify(final DXRAMContext.Config p_config) {
-        if (m_bitfieldSize.getBytes() < 2048 * 1024) {
-            LOGGER.warn("Bitfield size is rather small. Not all node IDs may be addressable because of high " +
-                    "false positives rate!");
-        }
-
-        if (p_config.getEngineConfig().getRole() == NodeRole.SUPERPEER && m_isClient) {
-            LOGGER.error("Client nodes can't be superpeers");
-            return false;
-        }
-
-        return true;
-    }
 }
