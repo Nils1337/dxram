@@ -733,7 +733,7 @@ public class LookupComponent extends AbstractDXRAMComponent<LookupComponentConfi
         }
 
         if (m_boot.getNodeRole() == NodeRole.SUPERPEER) {
-            m_superpeer = new OverlaySuperpeer(m_boot.getNodeId(), m_boot.getBootstrapId(),
+            m_superpeer = new OverlaySuperpeer(m_boot.getNodeId(),
                     m_boot.getNumberOfAvailableSuperpeers(),
                     (int) getConfig().getStabilizationBreakTime().getMs(),
                     p_config.getServiceConfig(SynchronizationServiceConfig.class).getMaxBarriersPerSuperpeer(),
@@ -742,7 +742,7 @@ public class LookupComponent extends AbstractDXRAMComponent<LookupComponentConfi
                     p_config.getComponentConfig(BackupComponentConfig.class).isBackupActive(), m_boot, m_network,
                     m_event);
         } else {
-            m_peer = new OverlayPeer(m_boot.getNodeId(), m_boot.getBootstrapId(),
+            m_peer = new OverlayPeer(m_boot.getNodeId(),
                     m_boot.getNumberOfAvailableSuperpeers(), m_boot, m_network, m_event);
             m_event.registerListener(this, NameserviceCacheEntryUpdateEvent.class);
         }

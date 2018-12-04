@@ -195,7 +195,7 @@ public class DXRaftHandler implements ConsensusHandler {
             throw new IllegalStateException("Failed reading bitmap from raft");
         }
 
-        bitmap.forEach(id -> bloomFilter.add(id.shortValue()));
+        bitmap.forEach(bloomFilter::add);
 
         // try to get unused id by incrementing distributed counter, hashing it,
         // checking for conflicts with the bloom filter and updating the id bitmap in raft

@@ -1,21 +1,24 @@
 package de.hhu.bsinfo.dxram.boot;
 
 import de.hhu.bsinfo.dxram.util.NodeRole;
+import de.hhu.bsinfo.dxutils.NodeID;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NodeRegistry {
 
     // All known nodes
-    private List<NodeDetails> m_nodes = new ArrayList<>();
+    private NodeDetails[] m_nodes = new NodeDetails[NodeID.MAX_ID + 1];
+
     private NodeRegistryListener m_listener;
 
-    public void addNewNode(NodeDetails p_nodeDetails) {
-        m_nodes.add(p_nodeDetails);
-        if (m_listener != null) {
+    public synchronized void addNewNode(NodeDetails p_nodeDetails) {
+        short nodeID = p_nodeDetails.getId();
+        NodeDetails prev = m_nodes[nodeID & 0xFFFF];
+        m_nodes[nodeID & 0xFFFF] = p_nodeDetails;
+
+        if (m_listener != null && prev == null || !prev.getAddress().equals(p_nodeDetails.getAddress())) {
             if (p_nodeDetails.getRole() == NodeRole.PEER) {
                 m_listener.onPeerJoined(p_nodeDetails);
             } else if (p_nodeDetails.getRole() == NodeRole.SUPERPEER) {
@@ -24,28 +27,24 @@ public class NodeRegistry {
         }
     }
 
-    public void removeNode(short p_id) {
-        Optional<NodeDetails> details = m_nodes.stream().filter(node -> node.getId() == p_id).findAny();
-        m_nodes = m_nodes.stream().filter(node -> node.getId() != p_id).collect(Collectors.toList());
-        if (details.isPresent() && m_listener != null) {
-            if (details.get().getRole() == NodeRole.PEER) {
-                m_listener.onPeerJoined(details.get());
-            } else if (details.get().getRole() == NodeRole.SUPERPEER) {
-                m_listener.onSuperpeerJoined(details.get());
+    public synchronized void removeNode(short p_id) {
+        NodeDetails prev = m_nodes[p_id & 0xFFFF];
+        m_nodes[p_id & 0xFFFF] = null;
+        if (m_listener != null && prev != null) {
+            if (prev.getRole() == NodeRole.PEER) {
+                m_listener.onPeerJoined(prev);
+            } else if (prev.getRole() == NodeRole.SUPERPEER) {
+                m_listener.onSuperpeerJoined(prev);
             }
         }
     }
 
     public NodeDetails getDetails(short p_id) {
-        Optional<NodeDetails> nodeDetails = m_nodes.stream().filter(node -> node.getId() == p_id).findAny();
-        if (nodeDetails.isPresent()) {
-            return nodeDetails.get();
-        }
-        return null;
+        return m_nodes[p_id & 0xFFFF];
     }
 
     public List<NodeDetails> getAll() {
-        return m_nodes;
+        return Arrays.stream(m_nodes).filter(details -> details != null).collect(Collectors.toList());
     }
 
     public void registerRegistryListener(NodeRegistryListener p_listener) {

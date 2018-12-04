@@ -17,10 +17,12 @@
 package de.hhu.bsinfo.dxram.lookup.messages;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hhu.bsinfo.dxnet.core.AbstractMessageExporter;
 import de.hhu.bsinfo.dxnet.core.AbstractMessageImporter;
 import de.hhu.bsinfo.dxnet.core.Response;
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
 import de.hhu.bsinfo.dxram.boot.NodesConfiguration;
 import de.hhu.bsinfo.dxutils.NodeID;
 import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
@@ -33,12 +35,12 @@ import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
 public class JoinResponse extends Response {
 
     // Attributes
-    private short m_newContactSuperpeer;
+    private NodeDetails m_newContactSuperpeer;
     private short m_predecessor;
     private short m_successor;
     private ArrayList<Short> m_superpeers;
     private ArrayList<Short> m_peers;
-    private ArrayList<NodesConfiguration.NodeEntry> m_onlineNodes;
+    private List<NodeDetails> m_onlineNodes;
     private byte[] m_metadata;
 
     private int m_superpeersToRead; // Used for serialization, only
@@ -53,7 +55,7 @@ public class JoinResponse extends Response {
     public JoinResponse() {
         super();
 
-        m_newContactSuperpeer = NodeID.INVALID_ID;
+        m_newContactSuperpeer = null;
         m_predecessor = NodeID.INVALID_ID;
         m_successor = NodeID.INVALID_ID;
         m_superpeers = null;
@@ -82,10 +84,10 @@ public class JoinResponse extends Response {
      * @param p_metadata
      *         the metadata
      */
-    public JoinResponse(final JoinRequest p_request, final short p_newContactSuperpeer, final short p_predecessor,
+    public JoinResponse(final JoinRequest p_request, final NodeDetails p_newContactSuperpeer, final short p_predecessor,
             final short p_successor,
             final ArrayList<Short> p_superpeers, final ArrayList<Short> p_peers,
-            final ArrayList<NodesConfiguration.NodeEntry> p_onlineNodes,
+            final List<NodeDetails> p_onlineNodes,
             final byte[] p_metadata) {
         super(p_request, LookupMessages.SUBTYPE_JOIN_RESPONSE);
 
@@ -94,7 +96,7 @@ public class JoinResponse extends Response {
         m_successor = p_successor;
         m_superpeers = p_superpeers;
         m_peers = p_peers;
-        m_onlineNodes = new ArrayList<>();
+        m_onlineNodes = p_onlineNodes;
         m_metadata = p_metadata;
     }
 
@@ -105,7 +107,7 @@ public class JoinResponse extends Response {
      *
      * @return the NodeID
      */
-    public final short getNewContactSuperpeer() {
+    public final NodeDetails getNewContactSuperpeer() {
         return m_newContactSuperpeer;
     }
 
@@ -150,7 +152,7 @@ public class JoinResponse extends Response {
      *
      * @return the nodes
      */
-    public final ArrayList<NodesConfiguration.NodeEntry> getOnlineNodes() {
+    public final List<NodeDetails> getOnlineNodes() {
         return m_onlineNodes;
     }
 
@@ -167,8 +169,8 @@ public class JoinResponse extends Response {
     protected final int getPayloadLength() {
         int ret;
 
-        if (m_newContactSuperpeer == NodeID.INVALID_ID) {
-            ret = Short.BYTES * 3;
+        if (m_newContactSuperpeer == null) {
+            ret = Short.BYTES * 2 + Byte.BYTES;
 
             if (m_superpeers != null && !m_superpeers.isEmpty()) {
                 ret += ObjectSizeUtil.sizeofCompactedNumber(m_superpeers.size()) + Short.BYTES * m_superpeers.size();
@@ -184,7 +186,7 @@ public class JoinResponse extends Response {
 
             if (m_onlineNodes != null && !m_onlineNodes.isEmpty()) {
                 ret += ObjectSizeUtil.sizeofCompactedNumber(m_onlineNodes.size());
-                for (NodesConfiguration.NodeEntry entry : m_onlineNodes) {
+                for (NodeDetails entry : m_onlineNodes) {
                     ret += entry.sizeofObject();
                 }
             } else {
@@ -197,7 +199,7 @@ public class JoinResponse extends Response {
                 ret += Byte.BYTES;
             }
         } else {
-            ret = Short.BYTES;
+            ret = m_newContactSuperpeer.sizeofObject() + Byte.BYTES;
         }
 
         return ret;
@@ -206,8 +208,8 @@ public class JoinResponse extends Response {
     // Methods
     @Override
     protected final void writePayload(final AbstractMessageExporter p_exporter) {
-        if (m_newContactSuperpeer == NodeID.INVALID_ID) {
-            p_exporter.writeShort(NodeID.INVALID_ID);
+        if (m_newContactSuperpeer == null) {
+            p_exporter.writeByte((byte) 0);
             p_exporter.writeShort(m_predecessor);
             p_exporter.writeShort(m_successor);
 
@@ -233,7 +235,7 @@ public class JoinResponse extends Response {
                 p_exporter.writeCompactNumber(0);
             } else {
                 p_exporter.writeCompactNumber(m_onlineNodes.size());
-                for (NodesConfiguration.NodeEntry entry : m_onlineNodes) {
+                for (NodeDetails entry : m_onlineNodes) {
                     p_exporter.exportObject(entry);
                 }
             }
@@ -244,14 +246,15 @@ public class JoinResponse extends Response {
                 p_exporter.writeByteArray(m_metadata);
             }
         } else {
-            p_exporter.writeShort(m_newContactSuperpeer);
+            p_exporter.writeByte((byte) 1);
+            p_exporter.exportObject(m_newContactSuperpeer);
         }
     }
 
     @Override
     protected final void readPayload(final AbstractMessageImporter p_importer) {
-        m_newContactSuperpeer = p_importer.readShort(m_newContactSuperpeer);
-        if (m_newContactSuperpeer == NodeID.INVALID_ID) {
+        byte b = p_importer.readByte((byte) 0);
+        if (b == 0) {
             m_predecessor = p_importer.readShort(m_predecessor);
             m_successor = p_importer.readShort(m_successor);
 
@@ -282,10 +285,10 @@ public class JoinResponse extends Response {
             m_nodesToRead = p_importer.readCompactNumber(m_nodesToRead);
             if (m_onlineNodes == null) {
                 // Do not overwrite existing array list
-                m_onlineNodes = new ArrayList<NodesConfiguration.NodeEntry>(m_nodesToRead);
+                m_onlineNodes = new ArrayList<NodeDetails>(m_nodesToRead);
             }
             for (int i = 0; i < m_nodesToRead; i++) {
-                NodesConfiguration.NodeEntry node = new NodesConfiguration.NodeEntry(true);
+                NodeDetails node = new NodeDetails();
                 p_importer.importObject(node);
 
                 if (m_onlineNodes.size() == i) {
@@ -294,6 +297,9 @@ public class JoinResponse extends Response {
             }
 
             m_metadata = p_importer.readByteArray(m_metadata);
+        } else {
+            m_newContactSuperpeer = new NodeDetails();
+            p_importer.importObject(m_newContactSuperpeer);
         }
     }
 

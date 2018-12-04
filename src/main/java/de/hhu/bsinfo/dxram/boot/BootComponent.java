@@ -93,6 +93,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
             LOGGER.error("Starting node registry failed", e);
             return false;
         }
+
         return true;
     }
 
@@ -272,6 +273,14 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
                 .collect(Collectors.toList());
     }
 
+    public void addNodeToRegistry(NodeDetails p_nodeDetails) {
+        m_nodeRegistry.addNewNode(p_nodeDetails);
+    }
+
+    public void removeNodeFromRegistry(short p_id) {
+        m_nodeRegistry.removeNode(p_id);
+    }
+
     /**
      * Updates this node's capabilities.
      *
@@ -288,20 +297,30 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
 //        m_consensusHandler.updateNodeDetails(oldDetails.withCapabilities(p_capabilities));
     }
 
+//    /**
+//     * Get the node ID of the currently set bootstrap node.
+//     *
+//     * @return Node ID assigned for bootstrapping or -1 if no bootstrap assigned/available.
+//     */
+//    public short getBootstrapId() {
+//        NodeDetails bootstrapDetails = m_consensusHandler.getBootstrapDetails();
+//
+//        if (bootstrapDetails == null) {
+//            return NodeID.INVALID_ID;
+//        }
+//
+//        return bootstrapDetails.getId();
+//    }
+
     /**
-     * Get the node ID of the currently set bootstrap node.
+     * Get the node details of the currently set bootstrap node.
      *
-     * @return Node ID assigned for bootstrapping or -1 if no bootstrap assigned/available.
+     * @return Node details assigned for bootstrapping or null if no bootstrap assigned/available.
      */
-    public short getBootstrapId() {
-        NodeDetails bootstrapDetails = m_consensusHandler.getBootstrapDetails();
-
-        if (bootstrapDetails == null) {
-            return NodeID.INVALID_ID;
-        }
-
-        return bootstrapDetails.getId();
+    public NodeDetails getBootstrapDetails() {
+        return m_consensusHandler.getBootstrapDetails();
     }
+
 
     public short getNodeId() {
         return m_nodeDetails.getId();

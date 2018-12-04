@@ -31,9 +31,7 @@ import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
  */
 public class JoinRequest extends Request {
 
-    private byte[] m_nodeDetails;
-
-    private NodeDetails m_cachedDetails = null;
+    private NodeDetails m_nodeDetails;
 
     /**
      * Creates an instance of JoinRequest
@@ -49,15 +47,11 @@ public class JoinRequest extends Request {
      */
     public JoinRequest(final short p_destination, final NodeDetails p_details) {
         super(p_destination, DXRAMMessageTypes.LOOKUP_MESSAGES_TYPE, LookupMessages.SUBTYPE_JOIN_REQUEST);
-        m_nodeDetails = p_details.toByteArray();
+        m_nodeDetails = p_details;
     }
 
     public NodeDetails getNodeDetails() {
-        if (m_cachedDetails == null) {
-            m_cachedDetails = NodeDetails.fromByteArray(m_nodeDetails);
-        }
-
-        return m_cachedDetails;
+        return m_nodeDetails;
     }
 
     // Getters
@@ -68,7 +62,7 @@ public class JoinRequest extends Request {
      * @return the NodeID
      */
     public final short getNodeId() {
-        return getNodeDetails().getId();
+        return m_nodeDetails.getId();
     }
 
     /**
@@ -77,22 +71,23 @@ public class JoinRequest extends Request {
      * @return true if the new node is a superpeer, false otherwise
      */
     public final boolean isSuperPeer() {
-        return getNodeDetails().getRole() == NodeRole.SUPERPEER;
+        return m_nodeDetails.getRole() == NodeRole.SUPERPEER;
     }
 
     @Override
     protected final int getPayloadLength() {
-        return ObjectSizeUtil.sizeofByteArray(m_nodeDetails);
+        return m_nodeDetails.sizeofObject();
     }
 
     // Methods
     @Override
     protected final void writePayload(final AbstractMessageExporter p_exporter) {
-        p_exporter.writeByteArray(m_nodeDetails);
+        p_exporter.exportObject(m_nodeDetails);
     }
 
     @Override
     protected final void readPayload(final AbstractMessageImporter p_importer) {
-        m_nodeDetails = p_importer.readByteArray(m_nodeDetails);
+        m_nodeDetails = new NodeDetails();
+        p_importer.importObject(m_nodeDetails);
     }
 }

@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -134,8 +135,6 @@ public class OverlayPeer implements MessageReceiver {
      *
      * @param p_nodeID
      *         the own NodeID
-     * @param p_contactSuperpeer
-     *         the superpeer to contact for joining
      * @param p_initialNumberOfSuperpeers
      *         the number of expeced superpeers
      * @param p_boot
@@ -145,7 +144,7 @@ public class OverlayPeer implements MessageReceiver {
      * @param p_event
      *         the EventComponent
      */
-    public OverlayPeer(final short p_nodeID, final short p_contactSuperpeer, final int p_initialNumberOfSuperpeers,
+    public OverlayPeer(final short p_nodeID, final int p_initialNumberOfSuperpeers,
                        final BootComponent p_boot, final NetworkComponent p_network, final EventComponent p_event) {
         m_boot = p_boot;
         m_network = p_network;
@@ -159,7 +158,7 @@ public class OverlayPeer implements MessageReceiver {
         registerNetworkMessageListener();
 
         m_overlayLock = new ReentrantReadWriteLock(false);
-        joinSuperpeerOverlay(p_contactSuperpeer);
+        joinSuperpeerOverlay();
     }
 
     /* Lookup */
@@ -1395,38 +1394,36 @@ public class OverlayPeer implements MessageReceiver {
     /**
      * Joins the superpeer overlay through contactSuperpeer
      *
-     * @param p_contactSuperpeer
-     *         NodeID of a known superpeer
      * @return whether joining was successful
      * @lock no need for acquiring overlay lock in this method
      */
-    private boolean joinSuperpeerOverlay(final short p_contactSuperpeer) {
-        short contactSuperpeer;
+    private boolean joinSuperpeerOverlay() {
         JoinRequest joinRequest;
         JoinResponse joinResponse = null;
+        NodeDetails contactSuperpeer = m_boot.getBootstrapDetails();
 
-        LOGGER.trace("Entering joinSuperpeerOverlay with: p_contactSuperpeer=0x%X", p_contactSuperpeer);
+        LOGGER.trace("Entering joinSuperpeerOverlay with: p_contactSuperpeer=0x%X", contactSuperpeer.getId());
 
-        contactSuperpeer = p_contactSuperpeer;
-
-        if (p_contactSuperpeer == NodeID.INVALID_ID) {
+        if (contactSuperpeer == null) {
 
             LOGGER.error("Cannot join superpeer overlay, no bootstrap superpeer available to contact.");
 
             return false;
         }
 
-        while (contactSuperpeer != NodeID.INVALID_ID) {
+        while (contactSuperpeer != null) {
+            m_boot.addNodeToRegistry(contactSuperpeer);
 
-            LOGGER.trace("Contacting 0x%X to get the responsible superpeer, I am 0x%X", contactSuperpeer, m_nodeID);
+            LOGGER.trace("Contacting 0x%X to get the responsible superpeer, I am 0x%X", contactSuperpeer.getId(), m_nodeID);
 
-            joinRequest = new JoinRequest(contactSuperpeer, m_boot.getDetails());
+            joinRequest = new JoinRequest(contactSuperpeer.getId(), m_boot.getDetails());
 
             try {
                 m_network.sendSync(joinRequest);
             } catch (final NetworkException e) {
                 // Contact superpeer is not available, get a new contact superpeer
-                contactSuperpeer = m_boot.getBootstrapId();
+                m_boot.removeNodeFromRegistry(contactSuperpeer.getId());
+                contactSuperpeer = m_boot.getBootstrapDetails();
                 continue;
             }
 
@@ -1434,6 +1431,11 @@ public class OverlayPeer implements MessageReceiver {
             contactSuperpeer = joinResponse.getNewContactSuperpeer();
         }
         assert joinResponse != null;
+
+        for (NodeDetails details : joinResponse.getOnlineNodes()) {
+            m_boot.addNodeToRegistry(details);
+        }
+
         m_superpeers = joinResponse.getSuperpeers();
         m_mySuperpeer = joinResponse.getSource();
         OverlayHelper.insertSuperpeer(m_mySuperpeer, m_superpeers);
