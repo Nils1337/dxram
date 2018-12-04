@@ -1,12 +1,10 @@
 package de.hhu.bsinfo.dxram.boot;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import com.google.gson.annotations.Expose;
 
-import de.hhu.bsinfo.dxram.engine.DXRAMComponentConfig;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.unit.IPV4Unit;
@@ -16,14 +14,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Config for the ZookeeperNodeRegistry
+ * Config for the ZookeeperHandler
  *
  * @author Stefan Nothaas, stefan.nothaas@hhu.de, 24.05.2017
  */
 @Data
 @Accessors(prefix = "m_")
-public class ZookeeperNodeRegistryConfig {
-    private static final Logger LOGGER = LogManager.getFormatterLogger(ZookeeperNodeRegistryConfig.class);
+public class ZookeeperHandlerConfig {
+    private static final Logger LOGGER = LogManager.getFormatterLogger(ZookeeperHandlerConfig.class);
 
     /**
      * Path for zookeeper entry

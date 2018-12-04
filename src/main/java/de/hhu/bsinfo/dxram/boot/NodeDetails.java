@@ -1,6 +1,8 @@
 package de.hhu.bsinfo.dxram.boot;
 
+import de.hhu.bsinfo.dxraft.data.DataTypes;
 import de.hhu.bsinfo.dxraft.data.RaftData;
+import de.hhu.bsinfo.dxram.boot.raft.Bitmap;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.NodeID;
 import de.hhu.bsinfo.dxutils.serialization.ByteBufferImExporter;
@@ -22,8 +24,16 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 @JsonRootName("node")
 @Accessors(prefix = "m_")
-public final class NodeDetails {
+public final class NodeDetails implements RaftData {
 
+    // TODO probably better to make this registration non-static
+    private static final byte NODE_DETAILS_TYPE = 51;
+
+    static {
+        DataTypes.registerDataType(NODE_DETAILS_TYPE, NodeDetails.class);
+    }
+
+    private byte[] m_data;
     /**
      * The node's id.
      */
@@ -234,6 +244,39 @@ public final class NodeDetails {
 
         return new NodeDetails(tmpId, tmpIp, tmpPort, tmpRack, tmpSwitch,
                 NodeRole.getRoleByAcronym(tmpRole), tmpOnline, tmpBackup, tmpCapabilites);
+    }
+
+    @Override
+    public void exportObject(Exporter p_exporter) {
+        p_exporter.writeShort(m_id);
+        p_exporter.writeString(m_ip);
+        p_exporter.writeInt(m_port);
+        p_exporter.writeShort(m_rack);
+        p_exporter.writeShort(m_switch);
+        p_exporter.writeChar(m_role.getAcronym());
+        p_exporter.writeBoolean(m_online);
+        p_exporter.writeBoolean(m_availableForBackup);
+        p_exporter.writeInt(m_capabilities);
+    }
+
+    @Override
+    public void importObject(Importer p_importer) {
+        m_id = p_importer.readShort(m_id);
+        m_ip = p_importer.readString(m_ip);
+        m_port = p_importer.readInt(m_port);
+        m_rack = p_importer.readShort(m_rack);
+        m_switch = p_importer.readShort(m_switch);
+        char c = p_importer.readChar('0');
+        m_role = NodeRole.getRoleByAcronym(c);
+        m_online = p_importer.readBoolean(m_online);
+        m_availableForBackup = p_importer.readBoolean(m_availableForBackup);
+        m_capabilities = p_importer.readInt(m_capabilities);
+    }
+
+    @Override
+    public int sizeofObject() {
+        return 3 * Short.BYTES + 2 * Integer.BYTES + ObjectSizeUtil.sizeofString(m_ip) + Character.BYTES +
+                2 * ObjectSizeUtil.sizeofBoolean();
     }
 
     public static class Builder {

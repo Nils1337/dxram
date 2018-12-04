@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(prefix = "m_")
-public class DXRaftNodeRegistryConfig {
+public class DXRaftHandlerConfig {
 
     @Expose
     private boolean m_bootstrapPeer = true;

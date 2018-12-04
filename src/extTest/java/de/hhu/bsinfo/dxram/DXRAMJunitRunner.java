@@ -84,23 +84,23 @@ public class DXRAMJunitRunner extends Runner {
 
         Properties props = getConfigProperties();
 
-        m_zookeeper = new ZookeeperServer(props.getProperty("zookeeper_path"));
-
-        System.out.println("Starting zookeeper");
-
-        if (!m_zookeeper.start()) {
-            throw new RuntimeException("Starting zookeeper failed");
-        }
-
-        IPV4Unit zookeeperConnection = new IPV4Unit(props.getProperty("zookeeper_ip"),
-                Integer.parseInt(props.getProperty("zookeeper_port")));
+//        m_zookeeper = new ZookeeperServer(props.getProperty("zookeeper_path"));
+//
+//        System.out.println("Starting zookeeper");
+//
+//        if (!m_zookeeper.start()) {
+//            throw new RuntimeException("Starting zookeeper failed");
+//        }
+//
+//        IPV4Unit zookeeperConnection = new IPV4Unit(props.getProperty("zookeeper_ip"),
+//                Integer.parseInt(props.getProperty("zookeeper_port")));
 
         m_instances = new DXRAM[config.nodes().length];
 
         System.out.println("Creating " + m_instances.length + " DXRAM instances");
 
         for (int i = 0; i < m_instances.length; i++) {
-            m_instances[i] = createNodeInstance(zookeeperConnection, config, i, 22221 + i);
+            m_instances[i] = createNodeInstance(config, i, 22221 + i);
         }
 
         DXRAM testInstance = getInstanceForTest(m_instances, config);
@@ -128,8 +128,6 @@ public class DXRAMJunitRunner extends Runner {
     /**
      * Create a DXRAM instance
      *
-     * @param p_zookeeperConnection
-     *         Address to zookeeper server
      * @param p_config
      *         Test configuration to use
      * @param p_nodeIdx
@@ -138,11 +136,11 @@ public class DXRAMJunitRunner extends Runner {
      *         Port to assign to node
      * @return
      */
-    private DXRAM createNodeInstance(final IPV4Unit p_zookeeperConnection, final DXRAMTestConfiguration p_config,
+    private DXRAM createNodeInstance(final DXRAMTestConfiguration p_config,
             final int p_nodeIdx, final int p_nodePort) {
         DXRAM instance = new DXRAM();
 
-        if (!instance.initialize(new DXRAMTestContextCreator(p_zookeeperConnection, p_config, p_nodeIdx, p_nodePort),
+        if (!instance.initialize(new DXRAMTestContextCreator(p_config, p_nodeIdx, p_nodePort),
                 true)) {
             System.out.println("Creating instance failed");
             System.exit(-1);
