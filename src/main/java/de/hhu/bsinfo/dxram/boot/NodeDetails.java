@@ -9,6 +9,7 @@ import de.hhu.bsinfo.dxutils.serialization.ByteBufferImExporter;
 import de.hhu.bsinfo.dxutils.serialization.Exporter;
 import de.hhu.bsinfo.dxutils.serialization.Importer;
 import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.curator.x.discovery.ServiceInstance;
@@ -24,6 +25,7 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 @JsonRootName("node")
 @Accessors(prefix = "m_")
+@NoArgsConstructor
 public final class NodeDetails implements RaftData {
 
     // TODO probably better to make this registration non-static
@@ -248,6 +250,7 @@ public final class NodeDetails implements RaftData {
 
     @Override
     public void exportObject(Exporter p_exporter) {
+        p_exporter.writeByte(NODE_DETAILS_TYPE);
         p_exporter.writeShort(m_id);
         p_exporter.writeString(m_ip);
         p_exporter.writeInt(m_port);
@@ -276,7 +279,7 @@ public final class NodeDetails implements RaftData {
     @Override
     public int sizeofObject() {
         return 3 * Short.BYTES + 2 * Integer.BYTES + ObjectSizeUtil.sizeofString(m_ip) + Character.BYTES +
-                2 * ObjectSizeUtil.sizeofBoolean();
+                2 * ObjectSizeUtil.sizeofBoolean() + Byte.BYTES;
     }
 
     public static class Builder {

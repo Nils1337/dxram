@@ -1,6 +1,7 @@
 package de.hhu.bsinfo.dxram;
 
 import de.hhu.bsinfo.dxram.backup.BackupComponentConfig;
+import de.hhu.bsinfo.dxram.boot.BootComponent;
 import de.hhu.bsinfo.dxram.boot.BootComponentConfig;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentManager;
 import de.hhu.bsinfo.dxram.engine.DXRAMContext;
@@ -45,6 +46,15 @@ class DXRAMTestContextCreator implements DXRAMContextCreator {
 
         context.getConfig().getEngineConfig().setRole(m_config.nodes()[m_nodeIdx].nodeRole().toString());
         context.getConfig().getEngineConfig().setAddress(new IPV4Unit("127.0.0.1", m_nodePort));
+
+        context.getConfig().getComponentConfig(BootComponentConfig.class).setNodeRegistry("dxraft");
+        context.getConfig().getEngineConfig().setJniPath("/usr/lib/jni");
+
+        if (m_nodeIdx == 0) {
+            context.getConfig().getComponentConfig(BootComponentConfig.class).getDxraftConfig().setBootstrapPeer(true);
+        } else {
+            context.getConfig().getComponentConfig(BootComponentConfig.class).getDxraftConfig().setBootstrapPeer(false);
+        }
 
 //        context.getConfig().getComponentConfig(BootComponentConfig.class).getZookeeperConfig().setConnection(
 //                m_zookeeperConnection);

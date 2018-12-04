@@ -2,6 +2,7 @@ package de.hhu.bsinfo.dxram.boot;
 
 import de.hhu.bsinfo.dxram.util.NodeRole;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 public class NodeRegistry {
 
     // All known nodes
-    private List<NodeDetails> m_nodes;
+    private List<NodeDetails> m_nodes = new ArrayList<>();
     private NodeRegistryListener m_listener;
 
     public void addNewNode(NodeDetails p_nodeDetails) {

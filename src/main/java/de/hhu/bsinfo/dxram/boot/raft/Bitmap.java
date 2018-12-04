@@ -5,12 +5,14 @@ import de.hhu.bsinfo.dxraft.data.RaftData;
 import de.hhu.bsinfo.dxutils.serialization.Exporter;
 import de.hhu.bsinfo.dxutils.serialization.Importer;
 import de.hhu.bsinfo.dxutils.serialization.ObjectSizeUtil;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class Bitmap implements RaftData, Iterable<Integer> {
+@NoArgsConstructor
+public class Bitmap implements RaftData, Iterable<Short> {
     private static final byte BITMAP_TYPE = 50;
 
     static {
@@ -25,16 +27,18 @@ public class Bitmap implements RaftData, Iterable<Integer> {
         m_data = new byte[size];
     }
 
-    public boolean isSet(int p_idx) {
-        int idx = p_idx / 8;
-        int shift = p_idx % 8;
+    public boolean isSet(short p_idx) {
+        int id = p_idx >= 0 ? p_idx : -p_idx + Short.MAX_VALUE;
+        int idx = id / 8;
+        int shift = id % 8;
         int bit = m_data[idx] >> shift & 1;
         return bit == 1;
     }
 
-    public void set(int p_idx, boolean p_value) {
-        int shift = p_idx % 8;
-        int idx = p_idx / 8;
+    public void set(short p_idx, boolean p_value) {
+        int id = p_idx >= 0 ? p_idx : -p_idx + Short.MAX_VALUE;
+        int shift = id % 8;
+        int idx = id / 8;
         if (p_value) {
             m_data[idx] |= 1 << shift;
         } else {
@@ -61,16 +65,16 @@ public class Bitmap implements RaftData, Iterable<Integer> {
     }
 
     @Override
-    public @NotNull Iterator<Integer> iterator() {
+    public @NotNull Iterator<Short> iterator() {
         return new Itr();
     }
 
-    private class Itr implements Iterator<Integer> {
-        private int m_cursor = 0;
+    private class Itr implements Iterator<Short> {
+        private short m_cursor = 0;
 
         @Override
         public boolean hasNext() {
-            int cursor = m_cursor;
+            short cursor = m_cursor;
 
             while (cursor < m_size) {
                 if (isSet(cursor)) {
@@ -83,7 +87,7 @@ public class Bitmap implements RaftData, Iterable<Integer> {
         }
 
         @Override
-        public Integer next() {
+        public Short next() {
             while (m_cursor < m_size) {
                 if (isSet(m_cursor)) {
                     return m_cursor;

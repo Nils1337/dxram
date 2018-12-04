@@ -10,6 +10,7 @@ import de.hhu.bsinfo.dxraft.data.RaftData;
 import de.hhu.bsinfo.dxraft.data.ShortData;
 import de.hhu.bsinfo.dxraft.server.RaftServer;
 import de.hhu.bsinfo.dxraft.server.ServerConfig;
+import de.hhu.bsinfo.dxraft.state.RaftEntry;
 import de.hhu.bsinfo.dxram.boot.raft.Bitmap;
 import de.hhu.bsinfo.dxram.boot.raft.UpdateBitmapOperation;
 import de.hhu.bsinfo.dxram.util.NodeRole;
@@ -47,7 +48,11 @@ public class DXRaftHandler implements ConsensusHandler {
 
     @Override
     public NodeDetails getBootstrapDetails() {
-        return (NodeDetails) m_raftClient.read(BOOTSTRAP_PATH, false).getData();
+        RaftEntry entry = m_raftClient.read(BOOTSTRAP_PATH, false);
+        if (entry != null) {
+            return (NodeDetails) entry.getData();
+        }
+        return null;
     }
 
     @Override
