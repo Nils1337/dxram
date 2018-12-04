@@ -12,6 +12,7 @@ import de.hhu.bsinfo.dxraft.server.RaftServer;
 import de.hhu.bsinfo.dxraft.server.ServerConfig;
 import de.hhu.bsinfo.dxraft.state.RaftEntry;
 import de.hhu.bsinfo.dxram.boot.raft.Bitmap;
+import de.hhu.bsinfo.dxram.boot.raft.NodeDetailsWrapper;
 import de.hhu.bsinfo.dxram.boot.raft.UpdateBitmapOperation;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.BloomFilter;
@@ -52,7 +53,7 @@ public class DXRaftHandler implements ConsensusHandler {
     public NodeDetails getBootstrapDetails() {
         RaftEntry entry = m_raftClient.read(BOOTSTRAP_PATH, false);
         if (entry != null) {
-            return (NodeDetails) entry.getData();
+            return ((NodeDetailsWrapper) entry.getData()).getNodeDetails();
         }
         return null;
     }
@@ -136,7 +137,7 @@ public class DXRaftHandler implements ConsensusHandler {
         }
 
         // write node details of this node to the bootstrap path in raft
-        if (!m_raftClient.write(BOOTSTRAP_PATH, m_nodeDetails, true)) {
+        if (!m_raftClient.write(BOOTSTRAP_PATH, new NodeDetailsWrapper(m_nodeDetails), true)) {
             LOGGER.error("Creating bootstrap entry failed");
             return false;
         }
