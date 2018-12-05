@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 
 /**
- * Configuration for DXRAM uinit test class
+ * Configuration for DXRAM junit test class
  *
  * @author Stefan Nothaas, stefan.nothaas@hhu.de, 31.08.2018
  */
@@ -37,6 +37,12 @@ public @interface DXRAMTestConfiguration {
      * @return Node index
      */
     int runTestOnNodeIdx();
+
+    /**
+     * Consensus Provider to use in test
+     * @return "dxraft" or "zookeeper"
+     */
+    String consensusProvider() default "dxraft";
 
     /**
      * List of nodes to spawn for the test (spawned in order!)

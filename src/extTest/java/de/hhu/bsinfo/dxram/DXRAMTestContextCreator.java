@@ -15,9 +15,14 @@ import de.hhu.bsinfo.dxutils.unit.IPV4Unit;
  * @author Stefan Nothaas, stefan.nothaas@hhu.de, 31.08.2018
  */
 class DXRAMTestContextCreator implements DXRAMContextCreator {
+    private static final int DXRAM_NODE_PORT_START = 22221;
+    private static final int DXRAFT_INTERNAL_PORT_START = 5454;
+    private static final int DXRAFT_REQUEST_PORT_START = 5000;
+    private static final int DXRAFT_CLIENT_PORT_START = 6000;
+
     private final DXRAMTestConfiguration m_config;
     private final int m_nodeIdx;
-    private final int m_nodePort;
+    private final IPV4Unit m_zookeeperConnection;
 
     /**
      * Constructor
@@ -25,15 +30,13 @@ class DXRAMTestContextCreator implements DXRAMContextCreator {
      * @param p_config
      *         Configuration for the test class to run
      * @param p_nodeIdx
-     *         Index of node to configure
-     * @param p_nodePort
-     *         Port to assign to node
+     *         Index of node to configur
      */
-    DXRAMTestContextCreator(final DXRAMTestConfiguration p_config,
-            final int p_nodeIdx, final int p_nodePort) {
+    DXRAMTestContextCreator(final DXRAMTestConfiguration p_config, IPV4Unit p_zookeeperConnection,
+            final int p_nodeIdx) {
         m_config = p_config;
+        m_zookeeperConnection = p_zookeeperConnection;
         m_nodeIdx = p_nodeIdx;
-        m_nodePort = p_nodePort;
     }
 
     @Override
@@ -44,19 +47,27 @@ class DXRAMTestContextCreator implements DXRAMContextCreator {
         context.createDefaultServices(p_serviceManager);
 
         context.getConfig().getEngineConfig().setRole(m_config.nodes()[m_nodeIdx].nodeRole().toString());
-        context.getConfig().getEngineConfig().setAddress(new IPV4Unit("127.0.0.1", m_nodePort));
+        context.getConfig().getEngineConfig().setAddress(new IPV4Unit("127.0.0.1", DXRAM_NODE_PORT_START + m_nodeIdx));
 
-        context.getConfig().getComponentConfig(BootComponentConfig.class).setConsensusProvider("dxraft");
-        context.getConfig().getEngineConfig().setJniPath("/usr/lib/jni");
+        //context.getConfig().getEngineConfig().setJniPath("/usr/lib/jni");
 
-        if (m_nodeIdx == 0) {
-            context.getConfig().getComponentConfig(BootComponentConfig.class).getDxraftConfig().setBootstrapPeer(true);
+        BootComponentConfig bootConfig = context.getConfig().getComponentConfig(BootComponentConfig.class);
+        bootConfig.setConsensusProvider(m_config.consensusProvider());
+
+        if ("zookeeper".equals(m_config.consensusProvider())) {
+            bootConfig.getZookeeperConfig().setConnection(
+                    m_zookeeperConnection);
         } else {
-            context.getConfig().getComponentConfig(BootComponentConfig.class).getDxraftConfig().setBootstrapPeer(false);
-        }
+            if (m_nodeIdx == 0) {
+                bootConfig.getDxraftConfig().setBootstrapPeer(true);
+            } else {
+                bootConfig.getDxraftConfig().setBootstrapPeer(false);
+            }
 
-//        context.getConfig().getComponentConfig(BootComponentConfig.class).getZookeeperConfig().setConnection(
-//                m_zookeeperConnection);
+            bootConfig.getDxraftConfig().getRaftServerConfig().setRequestPort(DXRAFT_REQUEST_PORT_START + m_nodeIdx);
+            bootConfig.getDxraftConfig().getRaftServerConfig().setInternalPort(DXRAFT_INTERNAL_PORT_START + m_nodeIdx);
+            bootConfig.getDxraftConfig().getRaftClientConfig().setPort(DXRAFT_CLIENT_PORT_START + m_nodeIdx);
+        }
 
         context.getConfig().getComponentConfig(BackupComponentConfig.class).setBackupActive(
                 m_config.nodes()[m_nodeIdx].backupActive());
