@@ -18,7 +18,7 @@ public class NodeRegistry {
         NodeDetails prev = m_nodes[nodeID & 0xFFFF];
         m_nodes[nodeID & 0xFFFF] = p_nodeDetails;
 
-        if (m_listener != null && prev == null || !prev.getAddress().equals(p_nodeDetails.getAddress())) {
+        if (m_listener != null && (prev == null || !prev.getAddress().equals(p_nodeDetails.getAddress()))) {
             if (p_nodeDetails.getRole() == NodeRole.PEER) {
                 m_listener.onPeerJoined(p_nodeDetails);
             } else if (p_nodeDetails.getRole() == NodeRole.SUPERPEER) {

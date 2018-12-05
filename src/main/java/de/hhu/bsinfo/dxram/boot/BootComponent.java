@@ -77,7 +77,6 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
         m_contextConfig = p_config;
         m_nodeDetails = buildNodeDetails();
         m_nodeRegistry = new NodeRegistry();
-        m_nodeRegistry.addNewNode(m_nodeDetails);
         m_eventComponent.registerListener(this, NodeJoinEvent.class);
         m_eventComponent.registerListener(this, NodeFailureEvent.class);
 
@@ -94,6 +93,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
             return false;
         }
 
+        m_nodeRegistry.addNewNode(m_nodeDetails);
         return true;
     }
 

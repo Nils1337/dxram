@@ -110,7 +110,7 @@ public class DXRAMJunitRunner extends Runner {
         runTestOnInstance(testInstance, p_notifier);
 
         cleanupNodeInstances(m_instances);
-        m_zookeeper.shutdown();
+//        m_zookeeper.shutdown();
     }
 
     /**
