@@ -53,7 +53,7 @@ public class AskAboutSuccessorResponse extends Response {
     public AskAboutSuccessorResponse(final AskAboutSuccessorRequest p_request, final short p_predecessor) {
         super(p_request, LookupMessages.SUBTYPE_ASK_ABOUT_SUCCESSOR_RESPONSE);
 
-        assert p_predecessor != 0;
+        //assert p_predecessor != 0;
 
         m_successor = p_predecessor;
     }

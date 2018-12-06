@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import de.hhu.bsinfo.dxram.DXRAMComponentOrder;
+import de.hhu.bsinfo.dxram.backup.BackupComponent;
 import de.hhu.bsinfo.dxram.backup.BackupComponentConfig;
 import de.hhu.bsinfo.dxram.backup.BackupPeer;
 import de.hhu.bsinfo.dxram.chunk.ChunkComponentConfig;
@@ -51,18 +52,16 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
 
     private DXRAMContext.Config m_contextConfig;
 
-    private short m_id = NodeID.INVALID_ID;
-    private String m_address;
-    private int m_port;
-    private NodeRole m_role;
     private ConsensusHandler m_consensusHandler;
     private NodeRegistry m_nodeRegistry;
     private NodeDetails m_nodeDetails;
     private EventComponent m_eventComponent;
+    private BackupComponent m_backupComponent;
 
     @Override
     protected void resolveComponentDependencies(DXRAMComponentAccessor p_componentAccessor) {
         m_eventComponent = p_componentAccessor.getComponent(EventComponent.class);
+        m_backupComponent = p_componentAccessor.getComponent(BackupComponent.class);
     }
 
     /**
@@ -134,6 +133,9 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
      * @return This node's details.
      */
     private NodeDetails buildNodeDetails() {
+        NodeRole role = m_contextConfig.getEngineConfig().getRole();
+        boolean availableForBackup = (role == NodeRole.PEER && m_backupComponent != null) &&
+                m_backupComponent.isActiveAndAvailableForBackup();
         return NodeDetails.builder(NodeID.INVALID_ID, m_contextConfig.getEngineConfig().getAddress().getIP(),
                 m_contextConfig.getEngineConfig().getAddress().getPort())
                 .withRole(m_contextConfig.getEngineConfig().getRole())
@@ -141,6 +143,7 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
                 .withSwitch(m_config.getSwitch())
                 .withOnline(true)
                 .withCapabilities(detectNodeCapabilities(m_contextConfig.getEngineConfig().getRole()))
+                .withAvailableForBackup(availableForBackup)
                 .build();
     }
 
@@ -393,17 +396,9 @@ public class BootComponent extends AbstractDXRAMComponent<BootComponentConfig> i
     @Override
     public void eventTriggered(AbstractEvent p_event) {
         if (p_event instanceof NodeJoinEvent) {
-            NodeJoinEvent joinEvent = (NodeJoinEvent) p_event;
-            NodeDetails newNode = NodeDetails.builder(joinEvent.getNodeID(), joinEvent.getAddress().getIP(),
-                    joinEvent.getAddress().getPort())
-                    .withAvailableForBackup(joinEvent.isAvailableForBackup())
-                    .withCapabilities(joinEvent.getCapabilities())
-                    .withOnline(true)
-                    .withRack(joinEvent.getRack())
-                    .withSwitch(joinEvent.getSwitch())
-                    .withRole(joinEvent.getRole())
-                    .build();
-            m_nodeRegistry.addNewNode(newNode);
+            // this is already done when message arrives
+//            NodeJoinEvent joinEvent = (NodeJoinEvent) p_event;
+//            m_nodeRegistry.addNewNode(joinEvent.getNodeDetails());
         } else if (p_event instanceof NodeFailureEvent) {
             NodeFailureEvent failureEvent = (NodeFailureEvent) p_event;
             m_nodeRegistry.removeNode(failureEvent.getNodeID());

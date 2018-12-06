@@ -186,7 +186,7 @@ public class DXRaftHandler implements ConsensusHandler {
         if (idData instanceof ShortData) {
             short id = ((ShortData) idData).getValue();
             m_nodeDetails.setId(id);
-            LOGGER.info("Assigned previously freed id {} to this node", id);
+            LOGGER.info("Assigned previously freed id %s to this node", id);
             return;
         }
 
@@ -225,7 +225,7 @@ public class DXRaftHandler implements ConsensusHandler {
             }
 
             m_nodeDetails.setId(id);
-            LOGGER.info("Assigned calculated id {} based on the counter value {} to this node", id, m_counterValue);
+            LOGGER.info("Assigned calculated id %s based on the counter value %s to this node", id, m_counterValue);
             break;
         }
 

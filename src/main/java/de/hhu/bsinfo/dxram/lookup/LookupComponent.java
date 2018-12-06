@@ -684,11 +684,8 @@ public class LookupComponent extends AbstractDXRAMComponent<LookupComponentConfi
     @Override
     public boolean finishInitComponent() {
         if (m_boot.getNodeRole() == NodeRole.PEER) {
-            NodeDetails details = m_boot.getDetails();
-
             // Inform superpeer that this peer finished its startup process
-            m_peer.finishStartup(m_boot.getRack(), m_boot.getSwitch(), m_backup.isActiveAndAvailableForBackup(),
-                    details.getCapabilities(), new IPV4Unit(details.getIp(), details.getPort()));
+            m_peer.finishStartup(m_boot.getDetails());
         }
 
         return true;

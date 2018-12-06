@@ -30,6 +30,7 @@ import de.hhu.bsinfo.dxram.backup.ReplicaPlacement.AbstractPlacementStrategy;
 import de.hhu.bsinfo.dxram.backup.ReplicaPlacement.CopysetPlacement;
 import de.hhu.bsinfo.dxram.backup.ReplicaPlacement.RandomPlacement;
 import de.hhu.bsinfo.dxram.boot.BootComponent;
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
 import de.hhu.bsinfo.dxram.chunk.ChunkBackupComponent;
 import de.hhu.bsinfo.dxram.engine.AbstractDXRAMComponent;
 import de.hhu.bsinfo.dxram.engine.DXRAMComponentAccessor;
@@ -465,8 +466,9 @@ public class BackupComponent extends AbstractDXRAMComponent<BackupComponentConfi
             }
         } else {
             NodeJoinEvent event = (NodeJoinEvent) p_event;
-            if (((NodeJoinEvent) p_event).getRole() == NodeRole.PEER) {
-                BackupPeer joinedPeer = new BackupPeer(event.getNodeID(), event.getRack(), event.getSwitch());
+            NodeDetails newNode = event.getNodeDetails();
+            if (newNode.getRole() == NodeRole.PEER) {
+                BackupPeer joinedPeer = new BackupPeer(newNode.getId(), newNode.getRack(), newNode.getSwitch());
                 m_placementStrategy.addNewBackupPeer(joinedPeer);
 
                 List<BackupPeer> peers = m_boot.getAvailableBackupPeers();

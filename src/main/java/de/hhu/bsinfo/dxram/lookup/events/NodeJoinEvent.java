@@ -16,9 +16,13 @@
 
 package de.hhu.bsinfo.dxram.lookup.events;
 
+import de.hhu.bsinfo.dxram.boot.NodeDetails;
 import de.hhu.bsinfo.dxram.event.AbstractEvent;
 import de.hhu.bsinfo.dxram.util.NodeRole;
 import de.hhu.bsinfo.dxutils.unit.IPV4Unit;
+import lombok.Data;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 /**
  * An event for node joining
@@ -26,101 +30,21 @@ import de.hhu.bsinfo.dxutils.unit.IPV4Unit;
  * @author Kevin Beineke, kevin.beineke@hhu.de, 12.03.2017
  * @author Filip Krakowski, Filip.Krakowski@hhu.de, 18.05.2018
  */
+@Getter
+@Accessors(prefix = {"m_"})
 public class NodeJoinEvent extends AbstractEvent {
-    private short m_nodeID;
-    private NodeRole m_role;
-    private int m_capabilities;
-    private short m_rack;
-    private short m_switch;
-    private boolean m_availableForBackup;
-    private IPV4Unit m_address;
+    private NodeDetails m_nodeDetails;
 
     /**
      * Creates an instance of NodeJoinEvent
      *
      * @param p_sourceClass
      *         the calling class
-     * @param p_nodeID
-     *         the NodeID of the failed peer
-     * @param p_role
-     *         The node's role.
-     * @param p_capabilities
-     *         The node's capabilities.
+     * @param p_nodeDetails
+     *          Node details of joining node
      */
-    public NodeJoinEvent(final String p_sourceClass, final short p_nodeID, final NodeRole p_role,
-            final int p_capabilities, final short p_rack, final short p_switch, final boolean p_availableForBackup,
-            final IPV4Unit p_address) {
+    public NodeJoinEvent(final String p_sourceClass, final NodeDetails p_nodeDetails) {
         super(p_sourceClass);
-
-        m_nodeID = p_nodeID;
-        m_role = p_role;
-        m_capabilities = p_capabilities;
-        m_rack = p_rack;
-        m_switch = p_switch;
-        m_availableForBackup = p_availableForBackup;
-        m_address = p_address;
-    }
-
-    /**
-     * Returns the NodeID
-     *
-     * @return the joined peer's NodeID
-     */
-    public short getNodeID() {
-        return m_nodeID;
-    }
-
-    /**
-     * Returns the NodeRole
-     *
-     * @return the joined peer's role
-     */
-    public NodeRole getRole() {
-        return m_role;
-    }
-
-    /**
-     * Returns the capabilities.
-     *
-     * @return The joined peer's capabilities.
-     */
-    public int getCapabilities() {
-        return m_capabilities;
-    }
-
-    /**
-     * Returns the rack
-     *
-     * @return the joined peer's rack
-     */
-    public short getRack() {
-        return m_rack;
-    }
-
-    /**
-     * Returns the switch
-     *
-     * @return the joined peer's switch
-     */
-    public short getSwitch() {
-        return m_switch;
-    }
-
-    /**
-     * Returns whether the joined node is available for backup or not. Always false for superpeers.
-     *
-     * @return true, if available for backup
-     */
-    public boolean isAvailableForBackup() {
-        return m_availableForBackup;
-    }
-
-    /**
-     * Returns the address
-     *
-     * @return the joined peer's address
-     */
-    public IPV4Unit getAddress() {
-        return m_address;
+        m_nodeDetails = p_nodeDetails;
     }
 }

@@ -178,8 +178,6 @@ public class OverlaySuperpeer implements MessageReceiver {
      *
      * @param p_nodeID
      *         the own NodeID
-     * @param p_contactSuperpeer
-     *         the superpeer to contact for joining
      * @param p_initialNumberOfSuperpeers
      *         the number of expeced superpeers
      * @param p_sleepInterval
@@ -1214,11 +1212,8 @@ public class OverlaySuperpeer implements MessageReceiver {
         // Inform all superpeers
         NodeDetails details = m_boot.getDetails();
         for (short superpeer : m_superpeers) {
-            InetSocketAddress socketAddress = details.getAddress();
             NodeJoinEventRequest request =
-                    new NodeJoinEventRequest(superpeer, m_nodeID, NodeRole.SUPERPEER, NodeCapabilities.NONE,
-                            details.getRack(), details.getSwitch(), false,
-                            new IPV4Unit(socketAddress.getHostName(), socketAddress.getPort()));
+                    new NodeJoinEventRequest(superpeer, details);
             try {
                 m_network.sendSync(request);
             } catch (final NetworkException e) {
@@ -1233,9 +1228,7 @@ public class OverlaySuperpeer implements MessageReceiver {
         for (short peer : m_peers) {
             InetSocketAddress socketAddress = details.getAddress();
             NodeJoinEventRequest request =
-                    new NodeJoinEventRequest(peer, m_nodeID, NodeRole.SUPERPEER, NodeCapabilities.NONE,
-                            details.getRack(), details.getSwitch(), false,
-                            new IPV4Unit(socketAddress.getHostName(), socketAddress.getPort()));
+                    new NodeJoinEventRequest(peer, details);
             try {
                 m_network.sendSync(request);
             } catch (final NetworkException e) {
@@ -1465,15 +1458,16 @@ public class OverlaySuperpeer implements MessageReceiver {
 
         newPeer = p_finishedStartupMessage.getSource();
 
+        // make sure the new node is in node registry, there might be a case where it was not registered before (?)
+        m_boot.addNodeToRegistry(p_finishedStartupMessage.getNodeDetails());
+
+
         // Outsource informing other superpeers/peers to another thread to avoid blocking a message handler
         Runnable task = () -> {
             m_overlayLock.readLock().lock();
             // Inform all superpeers
             for (short superpeer : m_superpeers) {
-                NodeJoinEventRequest request = new NodeJoinEventRequest(superpeer, newPeer, NodeRole.PEER,
-                        p_finishedStartupMessage.getCapabilities(), p_finishedStartupMessage.getRack(),
-                        p_finishedStartupMessage.getSwitch(), p_finishedStartupMessage.isAvailableForBackup(),
-                        p_finishedStartupMessage.getAddress());
+                NodeJoinEventRequest request = new NodeJoinEventRequest(superpeer, p_finishedStartupMessage.getNodeDetails());
                 try {
                     m_network.sendSync(request);
                 } catch (final NetworkException e) {
@@ -1487,10 +1481,7 @@ public class OverlaySuperpeer implements MessageReceiver {
             // Inform own peers
             for (short peer : m_peers) {
                 if (peer != newPeer) {
-                    NodeJoinEventRequest request = new NodeJoinEventRequest(peer, newPeer, NodeRole.PEER,
-                            p_finishedStartupMessage.getCapabilities(), p_finishedStartupMessage.getRack(),
-                            p_finishedStartupMessage.getSwitch(), p_finishedStartupMessage.isAvailableForBackup(),
-                            p_finishedStartupMessage.getAddress());
+                    NodeJoinEventRequest request = new NodeJoinEventRequest(peer, p_finishedStartupMessage.getNodeDetails());
                     try {
                         m_network.sendSync(request);
                     } catch (final NetworkException e) {
@@ -1508,10 +1499,7 @@ public class OverlaySuperpeer implements MessageReceiver {
 
         // Notify other components/services
         m_event.fireEvent(
-                new NodeJoinEvent(getClass().getSimpleName(), p_finishedStartupMessage.getSource(), NodeRole.PEER,
-                        p_finishedStartupMessage.getCapabilities(), p_finishedStartupMessage.getRack(),
-                        p_finishedStartupMessage.getSwitch(), p_finishedStartupMessage.isAvailableForBackup(),
-                        p_finishedStartupMessage.getAddress()));
+                new NodeJoinEvent(getClass().getSimpleName(), p_finishedStartupMessage.getNodeDetails()));
     }
 
     /**
@@ -2034,15 +2022,18 @@ public class OverlaySuperpeer implements MessageReceiver {
 
         LOGGER.trace("Got request: NodeJoinEventRequest 0x%X", p_peerJoinEventRequest.getSource());
 
+        NodeDetails newPeer = p_peerJoinEventRequest.getNodeDetails();
+
+        // add new node to registry before sending response, else dxnet might not be able to send the response
+        // because it is unknown
+        m_boot.addNodeToRegistry(newPeer);
+
         // Outsource informing other peers to another thread to avoid blocking a message handler
         Runnable task = () -> {
             m_overlayLock.readLock().lock();
             // Inform own peers
             for (short p : m_peers) {
-                NodeJoinEventRequest request = new NodeJoinEventRequest(p, p_peerJoinEventRequest.getJoinedPeer(),
-                        p_peerJoinEventRequest.getRole(), p_peerJoinEventRequest.getCapabilities(),
-                        p_peerJoinEventRequest.getRack(), p_peerJoinEventRequest.getSwitch(),
-                        p_peerJoinEventRequest.isAvailableForBackup(), p_peerJoinEventRequest.getAddress());
+                NodeJoinEventRequest request = new NodeJoinEventRequest(p, newPeer);
                 try {
                     m_network.sendSync(request);
                 } catch (final NetworkException e) {
@@ -2063,10 +2054,7 @@ public class OverlaySuperpeer implements MessageReceiver {
         }
 
         // Notify other components/services
-        m_event.fireEvent(new NodeJoinEvent(getClass().getSimpleName(), p_peerJoinEventRequest.getJoinedPeer(),
-                p_peerJoinEventRequest.getRole(), p_peerJoinEventRequest.getCapabilities(),
-                p_peerJoinEventRequest.getRack(), p_peerJoinEventRequest.getSwitch(),
-                p_peerJoinEventRequest.isAvailableForBackup(), p_peerJoinEventRequest.getAddress()));
+        m_event.fireEvent(new NodeJoinEvent(getClass().getSimpleName(), p_peerJoinEventRequest.getNodeDetails()));
     }
 
     /**
